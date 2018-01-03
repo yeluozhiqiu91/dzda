@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+				http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+				http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+				http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+	<import resource="config.xml"/>
+	<context:component-scan base-package="com.igool"></context:component-scan>
+	<import resource="datasource-config.xml"/>
+	<!-- zookeeper -->
+	<bean id="thriftZookeeper" class="com.igool.thrift.rpc.zookeeper.ZookeeperFactory" destroy-method="close">
+		<property name="zkHosts" value="${zk.hostaddress}" />
+		<property name="namespace" value="com.igool.db.thrift.rpc" />
+		<property name="connectionTimeout" value="3000" />
+		<property name="sessionTimeout" value="3000" />
+		<property name="singleton" value="true" />
+	</bean>
+	<bean id="sericeAddressRegister" class="com.igool.thrift.rpc.zookeeper.ThriftServerAddressRegisterZookeeper" destroy-method="close">
+		<property name="zkClient" ref="thriftZookeeper" />
+	</bean>
+	<bean id="testSerivceImpl" class="com.igool.file.service.thrift.impl.TestServiceImpl" />
+	<bean id="imagePhotoRelService" class="com.igool.rpc.db.service.impl.ImagePhotoRelServiceImpl" />
+	<bean id="userInfoService" class="com.igool.rpc.db.service.impl.UserInfoServiceImpl"/>
+	<bean id="roleResourceService" class="com.igool.rpc.db.service.impl.RoleResourceServiceImpl"/>
+	<bean id="roleService" class="com.igool.rpc.db.service.impl.RoleServiceImpl"/>
+	<bean id="businessInfoService" class="com.igool.rpc.db.service.impl.BusinessInfoServiceImpl"/>
+	<bean id="plateTypeService" class="com.igool.rpc.db.service.impl.PlateTypeServiceImpl"/>
+	<bean id="businessTypeService" class="com.igool.rpc.db.service.impl.BusinessTypeServiceImpl"/>
+	<bean id="transferService" class="com.igool.rpc.db.service.impl.TransferServiceImpl"/>
+	<bean id="imageInfoService" class="com.igool.rpc.db.service.impl.ImageInfoServiceImpl"/>
+	<bean id="fileInfoService" class="com.igool.rpc.db.service.impl.FileInfoServiceImpl"/>
+	<bean id="departmentService" class="com.igool.rpc.db.service.impl.DepartmentServiceImpl"/>
+	<bean id="vehicleService" class="com.igool.rpc.db.service.impl.VehicleServiceImpl"/>
+	<bean id="dictionaryService" class="com.igool.rpc.db.service.impl.DictionaryServiceImpl"/>
+	<bean id="helloService" class="com.igool.thrift.rpc.ThriftServiceServerFactory"
+		  destroy-method="close">
+		<!--<property name="service" ref="helloSerivceImpl" />-->
+		<property name="objectList">
+			<list>
+				<ref bean="testSerivceImpl"></ref>
+				<ref bean="imagePhotoRelService"></ref>
+				<ref bean="userInfoService"></ref>
+				<ref bean="roleResourceService"></ref>
+				<ref bean="roleService"></ref>
+				<ref bean="businessInfoService"></ref>
+				<ref bean="plateTypeService"></ref>
+				<ref bean="businessTypeService"></ref>
+				<ref bean="transferService"></ref>
+				<ref bean="imageInfoService"></ref>
+				<ref bean="fileInfoService"></ref>
+				<ref bean="departmentService"></ref>
+				<ref bean="vehicleService"></ref>
+				<ref bean="dictionaryService"></ref>
+<!--				<ref bean="roleDaoImpl"></ref>
+				<ref bean="userDaoImpl"></ref>
+				<ref bean="sourceDaoImpl"></ref>
+				<ref bean="sspOfferDaoImpl"></ref>
+				<ref bean="validateDaoImpl"></ref>
+				<ref bean="dictionaryDaoImpl"></ref>
+				<ref bean="lawCodeDaoImpl"></ref>
+				<ref bean="offerFileDaoImpl"></ref>
+				<ref bean="wFLDWFDLDaoImpl"></ref>
+				<ref bean="wfdlDaoImpl"></ref>
+				<ref bean="wfldDaoImpl"></ref>
+				<ref bean="offerExtDaoImpl"></ref>
+				<ref bean="recordCountDaoImpl"></ref>-->
+			</list>
+		</property>
+		<property name="port" value="${service.port}" />
+		<property name="version" value="1.0.0" />
+		<property name="weight" value="1" />
+		<property name="thriftServerAddressRegister" ref="sericeAddressRegister" />
+	</bean>
+
+</beans>

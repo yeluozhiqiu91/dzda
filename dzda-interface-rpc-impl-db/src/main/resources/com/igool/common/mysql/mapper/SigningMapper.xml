@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2010-2013 the original author or authors. Licensed under the
+	Apache License, Version 2.0 (the "License"); you may not use this file except
+	in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+	Unless required by applicable law or agreed to in writing, software distributed
+	under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+	OR CONDITIONS OF ANY KIND, either express or implied. See the License for
+	the specific language governing permissions and limitations under the License. -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.igool.rpc.db.mysql.mapper.SigningMapper">
+
+    <insert id="addSigning" parameterType="com.igool.rpc.db.model.thrift.Signing">
+        insert into t_da_signing(code,box,create_date,update_user,update_date,jjlx)
+        VALUES (#{signing.code},#{signing.box},now(),#{signing.updateUser},now(),#{signing.jjlx})
+    </insert>
+    <insert id="saveSigning" parameterType="com.igool.rpc.db.model.thrift.Signing"
+            useGeneratedKeys="true" keyColumn="signing_id" keyProperty="signing.signingId">
+        insert into t_da_signing(code,receiver,receiver_date,box,create_date,update_user,update_date,jjlx)
+        VALUES (#{signing.code},#{signing.receiver},now(),#{signing.box},now(),#{signing.updateUser},now(),#{signing.jjlx})
+    </insert>
+
+    <select id="findSigningByPcCode" resultType="com.igool.rpc.db.model.thrift.Signing">
+        select signing_id AS signingId,
+        code as code,
+        date_format(receiver_date,'%Y-%m-%d %H:%i:%s') as receiverDate,
+        receiver as receiver,
+        status as status,
+        box as box,
+        date_format(create_date,'%Y-%m-%d %H:%i:%s') as createDate,
+        update_user as updateUser,
+        date_format(update_date,'%Y-%m-%d %H:%i:%s') as updateDate,
+        jjlx as jjlx
+        from t_da_signing
+        where code=#{pcCode}
+    </select>
+    <insert id="saveSigningRel" parameterType="com.igool.rpc.db.model.thrift.SigningRel">
+        insert into t_da_signing_rel(signing_id,create_date,create_user,status,business_id)
+        VALUES (#{signingRel.signingId},now(),#{signingRel.createUser},#{signingRel.status},#{signingRel.businessId})
+    </insert>
+    <select id="getQsCountByPcCode" resultType="int">
+        select count(*) from t_da_signing_rel where signing_id=
+        (select signing_id from t_da_signing where code=#{pcCode})
+    </select>
+    <update id="updateSigingStatus" parameterType="com.igool.rpc.db.model.thrift.Signing">
+        update t_da_signing set status=#{signing.status}
+        where signing_id=#{signing.signingId}
+    </update>
+    <insert id="addSigningRef" parameterType="com.igool.rpc.db.model.thrift.BusinessInfo">
+        insert into t_da_signing_rel(signing_id,create_date,create_user,business_id)
+        VALUES (#{businessInfo.box},now(),#{userId},#{businessInfo.businessId})
+    </insert>
+
+    <select id="findBox" resultType="string">
+        select signing_id from t_da_signing where box=#{box}
+    </select>
+
+    <select id="getBoxJjqk" resultType="int">
+        select (select count(signing_rel_id) from t_da_signing_rel where signing_id=#{box})=ifnull((select count(delivery_rel_id) from t_da_delivery_rel where delivery_id=#{deliveryId} having count(delivery_rel_id)>0),-1) from dual
+    </select>
+
+    <update id="updateJjzt" >
+        update t_da_signing set jjlx=#{type},receiver=#{userId},status=#{status} where  signing_id=#{signingId}
+    </update>
+
+
+    <update id="updateBox" >
+        update t_da_signing set box=#{box} where  box=#{beforeBox}
+    </update>
+
+
+    <select id="findSignNumberByCode" resultType="com.igool.rpc.db.model.thrift.Signing" parameterType="com.igool.rpc.db.model.thrift.DeliveryInfo">
+        select s.code code,count(sr.signing_id) as count from
+        (select code,signing_id from t_da_signing where code in
+        <foreach collection="deliveryinfos" item="deliveryinfo" open="(" close=")" separator=",">
+            #{deliveryinfo.code}
+        </foreach>
+        ) s left join t_da_signing_rel sr
+        on  s.signing_id=sr.signing_id group by s.code,sr.signing_id
+
+    </select>
+
+    <select id="findSigningRelBySigningId" resultType="com.igool.rpc.db.model.thrift.SigningRel">
+        select business_id as businessId from t_da_signing_rel where signing_id=#{signingId}
+    </select>
+
+    <select id="findSigningIdByDeliveryCode" resultType="string">
+        select signing_id from t_da_signing where code=#{deliveryCode}
+    </select>
+
+    <select id="getBoxSigningState" resultType="int">
+
+            select count(signing_rel_id)
+            from t_da_signing_rel
+            where signing_id=#{signingId}
+            UNION ALL
+            select count(delivery_rel_id)
+            from t_da_delivery_rel
+            where delivery_id=#{deliveryId}
+    </select>
+    <delete id="delSigningByPcCode">
+        delete from t_da_signing where code=#{pcCode}
+    </delete>
+
+    <delete id="delSigning">
+        delete from t_da_signing where signing_id=#{signingId}
+    </delete>
+
+    <select id="findSigningByPcCodes" resultType="com.igool.rpc.db.model.thrift.Signing" parameterType="com.igool.rpc.db.model.thrift.DeliveryInfo" >
+        select signing_id as signingId,code,receiver,box,status,jjlx from t_da_signing s
+        where code in
+        <foreach collection="deliveryInfos" item="deliveryInfo" open="(" close=")" separator=",">
+           #{deliveryInfo.code}
+        </foreach>
+    </select>
+
+    <select id="findPcCodeByBox" resultType="string"  >
+        select code from t_da_signing
+        where box=#{box}
+    </select>
+
+</mapper>

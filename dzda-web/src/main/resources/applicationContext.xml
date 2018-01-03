@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:cache="http://www.springframework.org/schema/cache"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:pisces="http://www.pisces.framework/schema/pisces"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	 http://www.springframework.org/schema/cache      http://www.springframework.org/schema/cache/spring-cache.xsd
+	 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+	 http://www.springframework.org/schema/tx      http://www.springframework.org/schema/tx/spring-tx.xsd 
+	  http://www.springframework.org/schema/util  http://www.springframework.org/schema/util/spring-util.xsd
+	http://www.pisces.framework/schema/pisces http://www.pisces.framework/schema/pisces.xsd 
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+	<bean class="framework.pisces.data4j.env.context.ApplicationContextUtils" />
+
+	<!-- 自动加载第三方JAR -->
+	<context:annotation-config />
+
+	<import resource="config.xml" />
+	<import resource="session.xml" />
+	<!--<import resource="spring-context-thrift-client.xml"/>-->
+	<import resource="spring-context-motan-client-db.xml"/>
+
+	<context:component-scan base-package="com.igool,framework">
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller" />
+    </context:component-scan>
+
+
+	<!-- redis shared -->
+	<pisces:redisshared id="redisshared">
+		<!-- <pisces:sharding-strategy shared-strategy-impl="com.stnts.example.mapper.redis.shared.URedisShardingStrategy"/> -->
+		<pisces:connection-factory-provider
+				name="connectionProvider">
+			<pisces:spec-provider>
+				<pisces:shared-spec id="sharedSpec0" host="${redis.host}"
+									password="${redis.password}" port="${redis.port}" db="${redis.database}" />
+			</pisces:spec-provider>
+			<pisces:redis-pool maxActive="400" maxIdle="400"
+							   minIdle="10" maxWaitMillis="100" />
+		</pisces:connection-factory-provider>
+	</pisces:redisshared>
+	<!-- 每种缓存的失效时间定义不太一样， 你redis 这里定义是多长时间之后失效，相当于如果设置了expires，它的有效时间就是多少，最小单位是秒 -->
+	<pisces:compositecache id="compositecache">
+		<pisces:cacheitem cache-type="MEMORY">
+			<pisces:cachedetail name="memeryCache" expires="1" />
+		</pisces:cacheitem>
+		<pisces:cacheitem cache-type="REDIS">
+			<pisces:cachedetail name="redisCache" expires="1000" />
+		</pisces:cacheitem>
+		<pisces:cacheitem cache-type="EHCACHE">
+			<pisces:cachedetail name="ehcacheCache" expires="1000" />
+		</pisces:cacheitem>
+	</pisces:compositecache>
+	<cache:annotation-driven cache-manager="compositecache" />
+	<bean id="errorHelper" class="framework.pisces.web4j.validator.util.ErrorHelper" />
+	<!--Validate Aspect -->
+	<bean id="validatorAspect"
+		  class="framework.pisces.web4j.validator.handler.ValidateHandelAspect">
+	</bean>
+</beans>

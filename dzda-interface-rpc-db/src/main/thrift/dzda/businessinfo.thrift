@@ -1,0 +1,25 @@
+namespace java com.igool.rpc.db.model.thrift
+struct BusinessInfo {
+			1:i32 businessId,
+			2:string code,
+			3:string plateType,
+			4:string plateCode,
+			5:string carCode,
+			6:string createDate,
+			7:string businessType,
+			8:string applicationDate,
+			9:i32 fileId,
+			10:i32 qsStatus,
+			11:string lsStatus,
+			12:string carNumber,
+			13:i32 sfwd,
+			14:i32 lswz,
+			15:i32 lszt,
+			16:string box,
+			17:string fileCode,
+			18:string plateTypeStr,
+			19:string businessTypeStr,
+			20:string imageDate,
+			21:i32 imageUser,
+			22:string imageUserName
+	}

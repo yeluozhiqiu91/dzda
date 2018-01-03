@@ -1,0 +1,766 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2010-2013 the original author or authors. Licensed under the
+	Apache License, Version 2.0 (the "License"); you may not use this file except
+	in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+	Unless required by applicable law or agreed to in writing, software distributed
+	under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+	OR CONDITIONS OF ANY KIND, either express or implied. See the License for
+	the specific language governing permissions and limitations under the License. -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.igool.rpc.db.mysql.mapper.BusinessInfoMapper">
+    <resultMap id="businessInfoMap" type="com.igool.rpc.db.model.thrift.BusinessInfo">
+    </resultMap>
+    <resultMap id="wtdaMap" type="com.igool.rpc.db.model.thrift.Wtda">
+    </resultMap>
+    <resultMap id="jjtjMap" type="com.igool.rpc.db.model.thrift.Jjtj">
+    </resultMap>
+
+    <resultMap id="lsmxMap" type="com.igool.rpc.db.model.thrift.Lsmx"></resultMap>
+    <resultMap id="businessImageDTOMap" type="com.igool.rpc.db.model.thrift.BusinessImageDTO"></resultMap>
+    <select id="findBusinessInfoByCode" resultType="com.igool.rpc.db.model.thrift.BusinessInfo">
+        select business_id as businessId,code as code,
+        plate_type as plateType,plate_code as plateCode,
+        car_code as carCode,create_date as createDate,
+        business_type as businessType,application_date as applicationDate,
+        file_id as fileId,qs_status as qsStatus,
+        ls_status as lsStatus,car_number as carNumber,
+        sfwd as sfwd,lswz as lswz,lszt as lszt,box as box,file_code as fileCode
+        from t_da_business_info where code=#{code}
+    </select>
+
+    <insert id="addBusinessInfo" parameterType="com.igool.rpc.db.model.thrift.BusinessInfo" keyProperty="businessId" keyColumn="business_id" useGeneratedKeys="true" >
+        insert into
+        t_da_business_info(code,plate_type,plate_code,car_code,create_date,business_type,application_date,car_number,lswz,lszt,file_code,box,file_id,qs_status,ls_status)
+        VALUES
+        <foreach collection="list" item="businessInfo" separator=",">
+            (#{businessInfo.code},#{businessInfo.plateType},#{businessInfo.plateCode},#{businessInfo.carCode},now(),#{businessInfo.businessType},
+            #{businessInfo.applicationDate},#{businessInfo.carNumber},#{businessInfo.lswz},#{businessInfo.lszt},#{businessInfo.fileCode},#{businessInfo.box},#{businessInfo.fileId},#{businessInfo.qsStatus},#{businessInfo.lsStatus})
+        </foreach>
+    </insert>
+
+
+    <update id="updateBusinessInfoWzAndZt" parameterType="com.igool.rpc.db.model.thrift.BusinessInfo">
+        update t_da_business_info set lswz=#{wz},lszt=#{zt},box=#{box} where business_id in
+        <foreach collection="businessInfosUpd" item="businessInfo" separator="," open="(" close=")">
+            #{businessInfo.businessId}
+        </foreach>
+    </update>
+    <update id="deliveryBToA" parameterType="com.igool.rpc.db.model.thrift.BusinessInfo">
+        update t_da_business_info set lswz=#{wz},lszt=#{zt} where business_id in
+        <foreach collection="businessInfosUpd" item="businessInfo" separator="," open="(" close=")">
+            #{businessInfo.businessId}
+        </foreach>
+    </update>
+    <select id="getBusinessInfoList" resultMap="businessInfoMap" parameterType="com.igool.rpc.db.model.thrift.BusinessInfo">
+        select business_id as businessId,
+        code as code,
+        plate_type as plateType,
+        plate_code as plateCode,
+        car_code as carCode,
+        date_format(create_date,'%Y-%m-%d %H:%i:%s') as createDate,
+        business_type as businessType,
+        date_format(application_date,'%Y-%m-%d %H:%i:%s') as applicationDate,
+        file_id as fileId,
+        qs_status as qsStatus,
+        ls_status as lsStatus,
+        car_number as carNumber,
+        sfwd as sfwd,
+        lswz as lswz,
+        lszt as lszt,
+        box as box,
+        file_code as fileCode
+        from t_da_business_info
+        where 1=1
+
+    </select>
+    <select id="getBusinessInfoListCount" resultType="long" parameterType="com.igool.rpc.db.model.thrift.BusinessInfo">
+        select count(*) from t_da_business_info where 1=1
+    </select>
+
+    <select id="getBusinessInfoListForShow" resultMap="businessInfoMap" parameterType="com.igool.rpc.db.model.thrift.BusinessInfo">
+        select b.business_id as businessId,
+        b.code as code,
+        b.plate_type as plateType,
+        b.plate_code as plateCode,
+        b.car_code as carCode,
+        b.business_type as businessType,
+        b.file_id as fileId,
+        b.qs_status as qsStatus,
+        b.ls_status as lsStatus,
+        b.car_number as carNumber,
+        b.sfwd as sfwd,
+        b.lswz as lswz,
+        b.lszt as lszt,
+        b.box as box,
+        b.file_code as fileCode
+        from t_da_business_info b
+        where 1=1
+        <if test="businessInfo.carCode!=null and businessInfo.carCode!=''">
+            and b.car_code like concat(#{businessInfo.carCode},'%')
+        </if>
+        <if test="businessInfo.fileCode!=null and businessInfo.fileCode!=''">
+            and b.file_code like concat(#{businessInfo.fileCode},'%')
+        </if>
+        <if test="businessInfo.code!=null and businessInfo.code!=''">
+            and b.code like concat(#{businessInfo.code},'%')
+        </if>
+        <if test="businessInfo.plateCode!=null and businessInfo.plateCode!=''">
+            and b.plate_code like concat(#{businessInfo.plateCode},'%')
+        </if>
+        <if test="businessInfo.plateType!=null and businessInfo.plateType!=''">
+            and b.plate_type=#{businessInfo.plateType}
+        </if>
+    </select>
+    <select id="getBusinessInfoListForShowCount" resultType="long" parameterType="com.igool.rpc.db.model.thrift.BusinessInfo">
+        select count(*)
+        from t_da_business_info b
+        where 1=1
+        <if test="businessInfo.carCode!=null and businessInfo.carCode!=''">
+            and b.car_code like concat(#{businessInfo.carCode},'%')
+        </if>
+        <if test="businessInfo.fileCode!=null and businessInfo.fileCode!=''">
+            and b.file_code like concat(#{businessInfo.fileCode},'%')
+        </if>
+        <if test="businessInfo.code!=null and businessInfo.code!=''">
+            and b.code like concat(#{businessInfo.code},'%')
+        </if>
+        <if test="businessInfo.plateCode!=null and businessInfo.plateCode!=''">
+            and b.plate_code like concat(#{businessInfo.plateCode},'%')
+        </if>
+        <if test="businessInfo.plateType!=null and businessInfo.plateType!=''">
+            and b.plate_type=#{businessInfo.plateType}
+        </if>
+    </select>
+    <select id="getWtdaListByQszl" resultMap="wtdaMap">
+        select file_code as fileCode,
+        code as businessCode,
+        qs_status as qsStatus,
+        '资料缺失' as qsStatusStr
+        from t_da_business_info b
+        where qs_status=2
+        <if test="startTime!=null and startTime!=''">
+            and create_date&gt;=#{startTime}
+        </if>
+        <if test="endTime!=null and endTime!=''">
+            and create_date&lt;#{endTime}
+        </if>
+
+    </select>
+    <select id="getWtdaListByQszlCount" resultType="long">
+        select count(*) from(
+        select code from t_da_business_info b
+        where qs_status=2
+        <if test="startTime!=null and startTime!=''">
+            and create_date&gt;=#{startTime}
+        </if>
+        <if test="endTime!=null and endTime!=''">
+            and create_date&lt;#{endTime}
+        </if>
+        group by code) as temp
+    </select>
+    <select id="getWtdaListByQsls" resultMap="wtdaMap">
+        select file_code as fileCode,
+        code as businessCode,
+        qs_status as qsStatus,
+        '无' as qsDetail,
+        '流水缺失' as qsStatusStr
+        from t_da_business_info where qs_status=0
+        <if test="startTime!=null and startTime!=''">
+            and create_date&gt;=#{startTime}
+        </if>
+        <if test="endTime!=null and endTime!=''">
+            and create_date&lt;#{endTime}
+        </if>
+    </select>
+
+    <select id="getDeliveryAndSignList" resultMap="jjtjMap">
+        SELECT DATE_FORMAT(kssj,'%Y-%m-%d') dateTime,jjlx,sum(lssl) lsCount,sum(dasl) daCount  FROM t_da_statistics where 1=1
+        <if test="startTime!=null and startTime!=''">
+            and kssj&gt;=#{startTime}
+        </if>
+        <if test="endTime!=null and endTime!=''">
+            and tjsj&lt;#{endTime}
+        </if>
+
+        group by dateTime,jjlx
+
+    </select>
+    <select id="getDeliveryAndSignListCount" resultType="long">
+        select count(1)
+        from (  SELECT DATE_FORMAT(kssj,'%Y%m%d') dateTime,jjlx,sum(lssl) lsCount,sum(dasl) daCount  FROM t_da_statistics where 1=1
+        <if test="startTime!=null and startTime!=''">
+            and kssj&gt;=#{startTime}
+        </if>
+        <if test="endTime!=null and endTime!=''">
+            and tjsj&lt;#{endTime}
+        </if>
+
+        group by dateTime,jjlx
+        ) t
+    </select>
+
+    <select id="getWtdaListByQslsCount" resultType="long">
+        select count(*)
+        from t_da_business_info where qs_status=0
+        <if test="startTime!=null and startTime!=''">
+            and create_date&gt;=#{startTime}
+        </if>
+        <if test="endTime!=null and endTime!=''">
+            and create_date&lt;#{endTime}
+        </if>
+    </select>
+
+    <!--     <select id="getDeliveryList" resultMap="jjtjMap"> -->
+    <!--         select d.jjlx as jjlx, -->
+    <!--         count(distinct(b.business_id)) as lsCount, -->
+    <!--         count(distinct(b.file_code)) as daCount -->
+    <!--         count(b.business_id) as lsCount, -->
+    <!--         count(distinct(b.file_code)) as daCount -->
+    <!--         from t_da_delivery_info d ,t_da_delivery_rel rel,t_da_business_info b -->
+    <!--         where d.delivery_id=rel.delivery_id and b.business_id=rel.business_id -->
+    <!--         <if test="startTime!=null and startTime!=''"> -->
+    <!--             and rel.create_date&gt;=#{startTime} -->
+    <!--         </if> -->
+    <!--         <if test="endTime!=null and endTime!=''"> -->
+    <!--             and rel.create_date&lt;#{endTime} -->
+    <!--         </if> -->
+    <!--         group by d.jjlx -->
+    <!--     </select> -->
+
+    <!--  2017.12.26 fangchen   -->
+    <select id="getDeliveryList" resultMap="jjtjMap">
+        select result.jjlx, count(b.business_id) as lsCount, count(distinct(b.file_code)) as daCount from t_da_business_info b,
+        (select d.jjlx as jjlx, rel.business_id from  t_da_delivery_info d,t_da_delivery_rel rel where d.delivery_id = rel.delivery_id
+        <if test="startTime!=null and startTime!=''">
+            and rel.create_date&gt;=#{startTime}
+        </if>
+        <if test="endTime!=null and endTime!=''">
+            and rel.create_date&lt;#{endTime}
+        </if>
+        ) result where b.business_id = result.business_id
+        group by result.jjlx
+    </select>
+
+    <!--     <select id="getSignList" resultMap="jjtjMap"> -->
+    <!--         select s.jjlx as jjlx, -->
+    <!--         count(distinct(b.business_id)) as lsCount, -->
+    <!--         count(distinct(b.file_code)) as daCount-->
+    <!--         count(b.business_id) as lsCount, -->
+    <!--         count(distinct(b.file_code)) as daCount -->
+    <!--         from t_da_signing s,t_da_signing_rel rel,t_da_business_info b -->
+    <!--         where (s.jjlx=2 or s.jjlx=4) and s.signing_id=rel.signing_id and b.business_id=rel.business_id -->
+    <!--         <if test="startTime!=null and startTime!=''"> -->
+    <!--             and rel.create_date&gt;=#{startTime} -->
+    <!--         </if> -->
+    <!--         <if test="endTime!=null and endTime!=''"> -->
+    <!--             and rel.create_date&lt;#{endTime} -->
+    <!--         </if> -->
+    <!--         group by s.jjlx -->
+    <!--     </select> -->
+
+    <select id="getSignList" resultMap="jjtjMap">
+
+        select result.jjlx, count(b.business_id) as lsCount, count(distinct(b.file_code)) as daCount from t_da_business_info b,
+        (select d.jjlx, rel.business_id from t_da_signing d, t_da_signing_rel rel
+        where d.jjlx in (2 ,4) and d.signing_id = rel.signing_id
+        <if test="startTime!=null and startTime!=''">
+            and rel.create_date&gt;=#{startTime}
+        </if>
+        <if test="endTime!=null and endTime!=''">
+            and rel.create_date&lt;#{endTime}
+        </if>
+        ) result where b.business_id = result.business_id
+        group by result.jjlx
+
+    </select>
+
+    <select id="getOldDeliveryList" resultMap="jjtjMap">
+        select d.jjlx as jjlx,
+        /*        case jjlx when 1 then 'A库转B库登记'
+        when 3 then 'B库转A库登记'
+        else '其它' end as jjlxStr,*/
+        count(distinct(b.business_id)) as lsCount,
+        count(distinct(b.file_code)) as daCount
+        from t_da_delivery_info d ,t_da_delivery_rel rel,t_da_business_info b
+        where d.delivery_id=rel.delivery_id and b.file_id=rel.file_id
+        <if test="startTime!=null and startTime!=''">
+            and rel.create_date&gt;=#{startTime}
+        </if>
+        <if test="endTime!=null and endTime!=''">
+            and rel.create_date&lt;#{endTime}
+        </if>
+        group by d.jjlx
+    </select>
+    <select id="getOldSignList" resultMap="jjtjMap">
+        select s.jjlx as jjlx,
+        count(distinct(b.business_id)) as lsCount,
+        count(distinct(rel.file_id)) as daCount
+        from t_da_signing s,t_da_signing_rel rel,t_da_business_info b
+        where s.signing_id=rel.signing_id and b.file_id=rel.file_id
+        <if test="startTime!=null and startTime!=''">
+            and rel.create_date&gt;=#{startTime}
+        </if>
+        <if test="endTime!=null and endTime!=''">
+            and rel.create_date&lt;#{endTime}
+        </if>
+        group by s.jjlx
+    </select>
+
+
+    <select id="getOldLsmxDeliveryList" resultMap="lsmxMap">
+        select b.code as businessCode,
+        b.file_code as fileCode,
+        d.code as pcCode,
+        b.box as box,
+        date_format(rel.create_date,'%Y-%m-%d %H:%i:%s') as signDate,
+        d.register_person as userId
+        from t_da_delivery_info d ,t_da_delivery_rel rel,t_da_business_info b
+        where d.delivery_id=rel.delivery_id and b.file_id=rel.file_id and d.jjlx=#{jjlx}
+        <if test="startTime!=null and startTime!=''">
+            and rel.create_date&gt;=#{startTime}
+        </if>
+        <if test="endTime!=null and endTime!=''">
+            and rel.create_date&lt;#{endTime}
+        </if>
+    </select>
+    <select id="getOldLsmxSignList" resultMap="lsmxMap">
+        select b.code as businessCode,
+        b.file_code as fileCode,
+        s.code as pcCode,
+        b.box as box,
+        rel.create_date as signDate,
+        rel.create_user as userId
+        from t_da_signing s,t_da_signing_rel rel,t_da_business_info b
+        where s.signing_id=rel.signing_id and b.file_id=rel.file_id
+        <if test="startTime!=null and startTime!=''">
+            and rel.create_date&gt;=#{startTime}
+        </if>
+        <if test="endTime!=null and endTime!=''">
+            and rel.create_date&lt;#{endTime}
+        </if>
+    </select>
+
+    <select id="getNewLsmxDeliveryList" resultMap="lsmxMap">
+        SELECT
+        date_format(
+        d.register_date,
+        '%Y-%m-%d %H:%i:%s'
+        ) AS signDate,
+        d.register_person AS userId,
+        d.code AS pcCode,
+        rel.business_id AS businessId
+        FROM
+        t_da_delivery_info d,
+        t_da_delivery_rel rel
+        WHERE
+        d.delivery_id = rel.delivery_id
+        and d.jjlx=#{jjlx}
+        <if test="startTime!=null and startTime!=''">
+            and rel.create_date&gt;=#{startTime}
+        </if>
+        <if test="endTime!=null and endTime!=''">
+            and rel.create_date&lt;#{endTime}
+        </if>
+    </select>
+
+    <select id="getNewLsmxDeliveryListCount" resultType="long">
+        SELECT
+        count(rel.delivery_rel_id)
+        FROM
+        t_da_delivery_info d,
+        t_da_delivery_rel rel
+        WHERE
+        d.delivery_id = rel.delivery_id
+        and d.jjlx=#{jjlx}
+        <if test="startTime!=null and startTime!=''">
+            and rel.create_date&gt;=#{startTime}
+        </if>
+        <if test="endTime!=null and endTime!=''">
+            and rel.create_date&lt;#{endTime}
+        </if>
+    </select>
+
+    <select id="getNewLsmxSignList" resultMap="lsmxMap">
+        select
+        s.code as pcCode,
+        date_format(rel.create_date,'%Y-%m-%d %H:%i:%s') as signDate,
+        rel.create_user as userId,
+        rel.business_id as businessId
+        from t_da_signing s,t_da_signing_rel rel
+        where s.jjlx=#{jjlx} and s.signing_id=rel.signing_id
+        <if test="startTime!=null and startTime!=''">
+            and rel.create_date&gt;=#{startTime}
+        </if>
+        <if test="endTime!=null and endTime!=''">
+            and rel.create_date&lt;#{endTime}
+        </if>
+    </select>
+
+    <select id="getNewLsmxSignListCount" resultType="long">
+        select
+        count(rel.signing_rel_id)
+        from t_da_signing s,t_da_signing_rel rel
+        where s.jjlx=#{jjlx} and s.signing_id=rel.signing_id
+        <if test="startTime!=null and startTime!=''">
+            and rel.create_date&gt;=#{startTime}
+        </if>
+        <if test="endTime!=null and endTime!=''">
+            and rel.create_date&lt;#{endTime}
+        </if>
+    </select>
+
+    <select id="getNewDamxDeliveryList" resultMap="lsmxMap">
+        SELECT
+        date_format(
+        d.register_date,
+        '%Y-%m-%d %H:%i:%s'
+        ) AS signDate,
+        d.register_person AS userId,
+        d.code AS pcCode,
+        rel.business_id AS businessId
+        FROM
+        t_da_delivery_info d,
+        t_da_delivery_rel rel
+        WHERE
+        d.delivery_id = rel.delivery_id
+        and d.jjlx=#{jjlx}
+        <if test="startTime!=null and startTime!=''">
+            and rel.create_date&gt;=#{startTime}
+        </if>
+        <if test="endTime!=null and endTime!=''">
+            and rel.create_date&lt;#{endTime}
+        </if>
+        group by rel.file_id
+    </select>
+    <select id="getNewDamxSignList" resultMap="lsmxMap">
+        select
+        s.code as pcCode,
+        date_format(rel.create_date,'%Y-%m-%d %H:%i:%s') as signDate,
+        rel.create_user as userId,
+        rel.business_id as businessId
+        from t_da_signing s,t_da_signing_rel rel
+        where s.signing_id=rel.signing_id
+        and s.jjlx=#{jjlx}
+        <if test="startTime!=null and startTime!=''">
+            and rel.create_date&gt;=#{startTime}
+        </if>
+        <if test="endTime!=null and endTime!=''">
+            and rel.create_date&lt;#{endTime}
+        </if>
+        group by rel.file_id
+    </select>
+    <select id="findNativeBusinessInfoByLsh" resultType="com.igool.rpc.db.model.thrift.BusinessInfo">
+        select b.business_id as businessId,
+        b.code as code,
+        b.plate_type as plateType,
+        b.plate_code as plateCode,
+        b.car_code as carCode,
+        date_format(b.create_date,'%Y-%m-%d %H:%i:%s') as createDate,
+        b.business_type as businessType,
+        date_format(b.application_date,'%Y-%m-%d %H:%i:%s') as applicationDate,
+        b.file_id as fileId,
+        b.qs_status as qsStatus,
+        b.ls_status as lsStatus,
+        b.car_number as carNumber,
+        b.sfwd as sfwd,
+        b.lswz as lswz,
+        b.lszt as lszt,
+        b.box as box,
+        b.file_code as fileCode
+        from t_da_business_info b
+        where 1=1 and code=#{lsh} limit 1
+    </select>
+
+    <update id="updateBusinessInfoWzAndZtById">
+        update t_da_business_info set lswz=#{lswz},lszt=#{lszt}
+        where business_id=#{businessId}
+    </update>
+    <insert id="saveBusinessInfo" parameterType="com.igool.rpc.db.model.thrift.BusinessInfo"
+            useGeneratedKeys="true" keyColumn="business_id" keyProperty="businessInfo.businessId" >
+        insert into t_da_business_info(code,plate_type,plate_code,car_code,create_date,business_type,application_date,car_number,lswz,lszt,file_code,box,file_id,qs_status,ls_status)
+        values(#{businessInfo.code},#{businessInfo.plateType},#{businessInfo.plateCode},#{businessInfo.carCode},now(),#{businessInfo.businessType},
+        #{businessInfo.applicationDate},#{businessInfo.carNumber},#{businessInfo.lswz},#{businessInfo.lszt},#{businessInfo.fileCode},#{businessInfo.box},#{businessInfo.fileId},#{businessInfo.qsStatus},#{businessInfo.lsStatus})
+    </insert>
+
+    <select id="ajaxLookSignDetailByCode" resultType="com.igool.rpc.db.model.thrift.BusinessInfo">
+        select code,file_code as fileCode,plate_type as plateType,plate_code as plateCode,car_code as carCode
+        from t_da_business_info where box in
+        ( select box from t_da_signing where code =#{code} )
+        and lszt in ( #{lszt1} , #{lszt2})
+    </select>
+
+    <select id="ajaxLookSuccessSignDetailByCode" resultType="com.igool.rpc.db.model.thrift.BusinessInfo">
+        select code,file_code as fileCode,plate_type as plateType,plate_code as plateCode,car_code as carCode
+        from t_da_business_info a1,
+        ( select business_id from t_da_signing_rel where signing_id = (select signing_id from t_da_signing where code =#{code}) ) a2
+        where a1.business_id=a2.business_id
+    </select>
+
+    <!-- <select id="findBoxByDeliveryIdAndLsh" resultType="com.igool.rpc.db.model.thrift.BusinessInfo">
+         select a2.signing_id as box,a2.business_id as businessId,a2.code as code,a2.file_code as fileCode,
+               a2.plate_type as plateType,a2.plate_code as plateCode,a2.car_code as carCode  from
+         (select business_id from t_da_delivery_rel where delivery_id=#{deliveryId}) a1,
+         (   select s.signing_id as signing_id,b.business_id  as business_id,b.code,b.file_code,b.plate_type,b.plate_code,b.car_code
+             from t_da_signing s,
+             (select business_id,box,code,file_code,plate_type,plate_code,car_code
+             from t_da_business_info where code=#{code}) b
+             where s.box=b.box
+         ) a2
+         where a1.business_id=a2.business_id
+     </select>-->
+
+    <select id="findBoxByDeliveryIdAndLsh" resultType="string">
+        select business_id from t_da_delivery_rel where delivery_id=#{deliveryId}
+    </select>
+
+    <update id="updateWzAndZt">
+        update t_da_business_info set lszt=#{zt},lswz=#{wz} where business_id=#{businessId}
+    </update>
+    <update id="updateZt">
+        update t_da_business_info set lszt=#{zt} where business_id=#{businessId}
+    </update>
+
+    <update id="updateBusinessInfosZt">
+        update t_da_business_info set lszt=#{zt},box='' where business_id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+
+    </update>
+
+    <update id="updateWz">
+        update t_da_business_info set lswz=#{wz} where box = (select box from t_da_signing where signing_id=#{signingId})
+    </update>
+
+    <update id="updateBox">
+        update t_da_business_info set box=#{box} where box=#{beforeBox}
+    </update>
+
+    <select id="getBusinessInfoListByBox" resultType="com.igool.rpc.db.model.thrift.BusinessInfo">
+        select business_id as businessId,code as code,plate_type as plateType,file_code as fileCode,plate_code as plateCode,car_code as carCode,lszt
+        from t_da_business_info where box =#{box}
+    </select>
+
+    <select id="getBusinessInfoListById" resultType="com.igool.rpc.db.model.thrift.BusinessInfo">
+        select b.business_id businessId,
+        b.plate_type plateType,
+        b.business_type businessType,
+        b.plate_code plateCode,
+        b.car_code carCode,
+        date_format(b.create_date,'%Y-%m-%d %H:%i:%s') as createDate,
+        date_format(b.application_date,'%Y-%m-%d %H:%i:%s') as applicationDate,
+        b.file_id fileId,
+        b.qs_status qsStatus,
+        b.ls_status lsStatus,
+        b.car_number carNumber,
+        b.sfwd sfwd,
+        b.lswz lswz,
+        b.lszt lszt,
+        b.box box,
+        b.file_code fileCode,
+        b.code code
+        from t_da_business_info b
+        where business_id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="getBusinessInfoListForImage" resultMap="businessInfoMap" parameterType="com.igool.rpc.db.model.thrift.BusinessInfo">
+        select b.business_id as businessId,
+        b.code as code,
+        b.plate_type as plateType,
+        b.plate_code as plateCode,
+        b.car_code as carCode,
+        date_format(b.create_date,'%Y-%m-%d %H:%i:%s') as createDate,
+        b.business_type as businessType,
+        date_format(b.application_date,'%Y-%m-%d %H:%i:%s') as applicationDate,
+        b.file_id as fileId,
+        b.qs_status as qsStatus,
+        b.ls_status as lsStatus,
+        b.car_number as carNumber,
+        b.sfwd as sfwd,
+        b.lswz as lswz,
+        b.lszt as lszt,
+        b.box as box,
+        b.file_code as fileCode
+        FROM t_da_business_info b WHERE 1=1
+        <if test="businessInfo.carCode!=null and businessInfo.carCode!=''">
+            and b.car_code like concat(#{businessInfo.carCode},'%')
+        </if>
+        <if test="businessInfo.fileCode!=null and businessInfo.fileCode!=''">
+            and b.file_code like concat(#{businessInfo.fileCode},'%')
+        </if>
+        <if test="businessInfo.code!=null and businessInfo.code!=''">
+            and b.code like concat(#{businessInfo.code},'%')
+        </if>
+        <if test="businessInfo.plateCode!=null and businessInfo.plateCode!=''">
+            and b.plate_code like concat(#{businessInfo.plateCode},'%')
+        </if>
+        <if test="businessInfo.plateType!=null and businessInfo.plateType!=''">
+            and b.plate_type=#{businessInfo.plateType}
+        </if>
+    </select>
+
+
+    <!--<select id="getBusinessInfoListForImageCount" parameterType="com.igool.rpc.db.model.thrift.BusinessInfo" resultType="long">
+        select count(*)
+        from
+        t_da_business_info b
+        where 1=1
+        <if test="businessInfo.carCode!=null and businessInfo.carCode!=''">
+            and b.car_code like concat(#{businessInfo.carCode},'%')
+        </if>
+        <if test="businessInfo.fileCode!=null and businessInfo.fileCode!=''">
+            and b.file_code like concat(#{businessInfo.fileCode},'%')
+        </if>
+        <if test="businessInfo.code!=null and businessInfo.code!=''">
+            and b.code like concat(#{businessInfo.code},'%')
+        </if>
+        <if test="businessInfo.plateCode!=null and businessInfo.plateCode!=''">
+            and b.plate_code like concat(#{businessInfo.plateCode},'%')
+        </if>
+        <if test="businessInfo.plateType!=null and businessInfo.plateType!=''">
+            and b.plate_type=#{businessInfo.plateType}
+        </if>
+    </select>-->
+
+    <update id="updateQsStatus">
+        update t_da_business_info set qs_status=#{qsStatus} where business_id=#{businessId}
+    </update>
+
+    <select id="countQsStatusByFileId" resultType="int">
+        select count(business_id) from t_da_business_info
+        where file_id=#{fileId}  AND ls_status != 'Q' AND ( qs_status=#{qsStatus1} or qs_status=#{qsStatus2} )
+    </select>
+
+    <select id="findBusinessInfoByCodes" resultType="com.igool.rpc.db.model.thrift.ImageInfo">
+        select code as code,file_code as fileCode
+        from t_da_business_info where code IN
+        <foreach collection="imageInfos" item="imageInfo" open="(" separator="," close=")">
+            #{imageInfo.code}
+        </foreach>
+    </select>
+
+    <select id="getImageFileCodeDetail" resultType="com.igool.rpc.db.model.thrift.BusinessInfo">
+        select file_code as fileCode,box as box
+        from t_da_business_info where code IN
+        <foreach collection="imageInfos" item="imageInfo" open="(" separator="," close=")">
+            #{imageInfo.code}
+        </foreach>
+        group by file_code
+    </select>
+
+    <select id="getBusinessInfoListByDeliveryId" resultType="com.igool.rpc.db.model.thrift.BusinessInfo">
+        select business_id as businessId,code as code,plate_type as plateType,file_code as fileCode,
+        plate_code as plateCode,car_code as carCode,box
+        from t_da_business_info where  business_id in (select business_id from t_da_delivery_rel where delivery_id=#{deliveryId})
+        ORDER BY file_code
+    </select>
+
+    <select id="findBusinessIdAndImageIdAndBusinessTypeIdByLsh" resultMap="businessImageDTOMap">
+        select * from (
+        select business_id as businessId,file_id as fileId,business_type businessType from t_da_business_info where code=#{lsh}) a,
+        (select image_id as imageId,business_type_info_id as businessTypeId from t_da_image_info where code=#{lsh}) b
+    </select>
+    <delete id="deleteBusinessQszlRelByBusinessId">
+        delete from t_da_business_qszl_rel where business_id=#{businessId}
+    </delete>
+    <insert id="addBusinessQszlRels" parameterType="com.igool.rpc.db.model.thrift.BusinessQszlRel">
+        insert into t_da_business_qszl_rel(business_id,business_detail_id,create_time,create_user)
+        VALUES
+        <foreach collection="rels" item="qszlRel" separator=",">
+            (#{qszlRel.businessId},#{qszlRel.businessDetailId},#{qszlRel.createTime},#{qszlRel.createUser})
+        </foreach>
+    </insert>
+    <select id="findFileInfoByFileCode" resultType="com.igool.rpc.db.model.thrift.FileInfo">
+        select file_id as fileId,
+        file_code as fileCode,
+        car_code as carCode,
+        hpzl as hpzl,
+        hphm as hphm,
+        status as status,
+        ck_status as ckStatus,
+        car_number as carNumber
+        from t_da_file_info
+        where file_code=#{fileCode} limit 1
+    </select>
+
+    <select id="findFileInfoByBox" resultType="com.igool.rpc.db.model.thrift.BusinessInfo">
+        select plate_type plateType,plate_code plateCode,car_code carCode,file_code fileCode from t_da_business_info where box=#{box}
+        group by file_code
+        order by file_code
+    </select>
+
+    <select id="findBusinessIdByCode" resultType="string">
+        select business_id from t_da_business_info where code=#{code}
+    </select>
+
+    <select id="findNotSignCodeByBox" resultType="string">
+        select code from t_da_business_info where box=#{box} and lszt=1;
+    </select>
+
+    <select id="getBusinessInfoListByCode" resultType="com.igool.rpc.db.model.thrift.BusinessInfo">
+        select b.business_id businessId,
+        b.plate_type plateType,
+        b.business_type businessType,
+        b.plate_code plateCode,
+        b.car_code carCode,
+        date_format(b.create_date,'%Y-%m-%d %H:%i:%s') as createDate,
+        date_format(b.application_date,'%Y-%m-%d %H:%i:%s') as applicationDate,
+        b.file_id fileId,
+        b.qs_status qsStatus,
+        b.ls_status lsStatus,
+        b.car_number carNumber,
+        b.sfwd sfwd,
+        b.lswz lswz,
+        b.lszt lszt,
+        b.box box,
+        b.file_code fileCode,
+        b.code code
+        from t_da_business_info b
+        where 1=1
+        <if test="codeList!=null and codeList.size()>0">
+            and  b.code in
+            <foreach collection="codeList" item="code" open="(" separator="," close=")">
+                #{code}
+            </foreach>
+        </if>
+
+    </select>
+    <select id="getNewDamxDeliveryListCount" resultType="long">
+        SELECT count(*) FROM
+        (SELECT
+        count(rel.file_id)
+        FROM
+        t_da_delivery_info d,
+        t_da_delivery_rel rel
+        WHERE
+        d.delivery_id = rel.delivery_id
+        and d.jjlx=#{jjlx}
+        <if test="startTime!=null and startTime!=''">
+            and rel.create_date&gt;=#{startTime}
+        </if>
+        <if test="endTime!=null and endTime!=''">
+            and rel.create_date&lt;#{endTime}
+        </if>
+        group by rel.file_id) a
+    </select>
+    <select id="getNewDamxSignListCount" resultType="long">
+        select count(*) from
+        (select
+        count(rel.file_id)
+        from t_da_signing s,t_da_signing_rel rel
+        where s.signing_id=rel.signing_id
+        and s.jjlx=#{jjlx}
+        <if test="startTime!=null and startTime!=''">
+            and rel.create_date&gt;=#{startTime}
+        </if>
+        <if test="endTime!=null and endTime!=''">
+            and rel.create_date&lt;#{endTime}
+        </if>
+        group by rel.file_id) a
+    </select>
+</mapper>

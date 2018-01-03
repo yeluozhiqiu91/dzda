@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE tiles-definitions PUBLIC "-//Apache Software Foundation//DTD Tiles Configuration 2.1//EN" "http://tiles.apache.org/dtds/tiles-config_2_1.dtd">
+<tiles-definitions>
+
+	<!-- Main layout -->
+	 <definition name="layout" template="/WEB-INF/views/common/layout.jsp">
+		<put-attribute name="head" value="/WEB-INF/views/common/head.jsp"
+			cascade="true" />
+		<put-attribute name="left" value="/WEB-INF/views/common/left.jsp"
+			cascade="true" />
+		<put-attribute name="headbar" value="/WEB-INF/views/common/headbar.jsp"
+			cascade="true" />
+		<put-attribute name="content" value="" cascade="true" />
+		<put-attribute name="foot" value="/WEB-INF/views/common/foot.jsp"
+			cascade="true" />
+		 <put-attribute name="footjs" value="/WEB-INF/views/common/footjs.jsp"
+						cascade="true" />
+		 <put-attribute name="logo" value="/WEB-INF/views/common/logo.jsp"
+						cascade="true" />
+		 <put-attribute name="user" value="/WEB-INF/views/common/user.jsp"
+						cascade="true" />
+		 <put-attribute name="menu" value="/WEB-INF/views/common/menu.jsp"
+						cascade="true" />
+	</definition>
+
+	<definition name="login" template="/WEB-INF/views/login.jsp" />
+	<definition name="businessInfo/businessInfoPrint" template="/WEB-INF/views/businessInfo/businessInfoPrint.jsp" />
+	<!-- Index -->
+	<definition name="index" extends="layout">
+		<put-attribute name="content" value="/WEB-INF/views/index.jsp" />
+	</definition>
+
+	<!-- 500 -->
+	<definition name="error" extends="layout">
+		<put-attribute name="content" value="/WEB-INF/views/error.jsp" />
+	</definition>
+	
+	<!-- mispermssion -->
+	<definition name="permissionerror" extends="layout">
+		<put-attribute name="content" value="/WEB-INF/views/permissionerror.jsp" />
+	</definition>
+
+	<!-- 404 -->
+	<definition name="404" extends="layout">
+		<put-attribute name="content" value="/WEB-INF/views/404.jsp" />
+	</definition>
+
+	<!-- 400 -->
+	<definition name="400" extends="layout">
+		<put-attribute name="content" value="/WEB-INF/views/400.jsp" />
+	</definition>
+
+	<definition name="user/*" extends="layout">
+		<put-attribute name="content" value="/WEB-INF/views/user/{1}.jsp" />
+	</definition>
+
+	<definition name="role/*" extends="layout">
+		<put-attribute name="content" value="/WEB-INF/views/role/{1}.jsp" />
+	</definition>
+	<definition name="jdcyx/*" extends="layout">
+		<put-attribute name="content" value="/WEB-INF/views/jdcyx/{1}.jsp" />
+	</definition>
+	<definition name="source/*" extends="layout">
+		<put-attribute name="content" value="/WEB-INF/views/source/{1}.jsp" />
+	</definition>
+	<definition name="businessInfo/*" extends="layout">
+		<put-attribute name="content" value="/WEB-INF/views/businessInfo/{1}.jsp" />
+	</definition>
+	<definition name="fileInfo/*" extends="layout">
+		<put-attribute name="content" value="/WEB-INF/views/fileInfo/{1}.jsp" />
+	</definition>
+
+	<definition name="query/*" extends="layout">
+		<put-attribute name="content" value="/WEB-INF/views/query/{1}.jsp" />
+	</definition>
+	<definition name="transfer/*" extends="layout">
+		<put-attribute name="content" value="/WEB-INF/views/transfertoa/{1}.jsp" />
+	</definition>
+	<definition name="image/*" extends="layout">
+		<put-attribute name="content" value="/WEB-INF/views/image/{1}.jsp" />
+	</definition>
+	<definition name="smy/smy" template="/WEB-INF/views/smy/smy.jsp" />
+	<definition name="department/*" extends="layout">
+		<put-attribute name="content" value="/WEB-INF/views/department/{1}.jsp" />
+	</definition>
+	<definition name="carInfo/*" extends="layout">
+		<put-attribute name="content" value="/WEB-INF/views/carInfo/{1}.jsp" />
+	</definition>
+	<definition name="vehicle/vehicle" template="/WEB-INF/views/vehicle/vehicle.jsp" />
+</tiles-definitions>

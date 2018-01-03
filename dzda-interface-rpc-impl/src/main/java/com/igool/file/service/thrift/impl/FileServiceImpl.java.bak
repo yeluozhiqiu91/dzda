@@ -1,0 +1,92 @@
+package com.igool.file.service.thrift.impl;
+
+import com.facebook.swift.service.ThriftService;
+import com.scoopit.weedfs.client.*;
+import com.facebook.swift.codec.ThriftField;
+import com.igool.file.service.thrift.FileService;
+import org.apache.commons.lang.StringUtils;
+import org.apache.thrift.TException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+/**
+ * Created by igool on 2017/7/26.
+ */
+@Service("fileServiceImpl")
+public class FileServiceImpl implements FileService {
+    private static final Logger logger = LoggerFactory.getLogger(FileServiceImpl.class);
+
+    private  @Value("#{config['weed.file.host']}") String fileHost;
+    public void close() {
+        this.close();
+    }
+    @Override
+    public boolean deleteFile(String filePath, boolean isPub) throws TException {
+        // TODO Auto-generated method stub
+        WeedFSClient client = null;
+        try {
+            logger.info("master url {}",fileHost);
+            client = WeedFSClientBuilder.createBuilder().setMasterUrl(new URL(fileHost)).build();
+            if ( !filePath.startsWith("http://")){
+                filePath = "http://"+filePath;
+            }
+            String[] urls = filePath.split("/");
+            if ( urls.length < 4 ){
+                return false;
+            }
+            String protool = urls[0]+"//"+urls[2] ;
+            String fileId = urls[3]+","+urls[4];
+            //if (pos > -1) {
+            WeedFSFile file = new WeedFSFile(fileId);
+            Location location = new Location();
+            location.publicUrl = protool;
+            client.delete(file, location);
+            return true;
+            // }
+        } catch (MalformedURLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            logger.error("URL不可达", e);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            logger.error("io读取错误", e);
+        }
+        return false;
+    }
+    @Override
+    public String storeFile(String fileName, byte[] byteFileSource, boolean isPub) throws TException {
+        WeedFSClient client = null;
+        try {
+            /*byte[] byteFileSource = new byte[fileSource.remaining()];
+            fileSource.get(byteFileSource,0,byteFileSource.length);*/
+            logger.info("file host {},pass img length {}",fileHost,byteFileSource.length);
+            // IOUtils.write(byteFileSource, new FileOutputStream( new File("C:/Users/igool/git/kp-rpc/kp-rpc-interface-impl/src/test/resources/湖北医药学院new.png")));
+            client = WeedFSClientBuilder.createBuilder().setMasterUrl(new URL(fileHost)).build();
+            Assignation assign = client.assign(new AssignParams("test", ReplicationStrategy.None));
+            int writtenSize = client.write(assign.weedFSFile, assign.location, byteFileSource, fileName);
+            if (writtenSize > 0) {
+                return assign.location.publicUrl + "/" + assign.weedFSFile.getVolumeId()+"/"+assign.weedFSFile.getNeedleIdAndCookie()+"/"+fileName;
+            }
+        } catch (MalformedURLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            logger.error("URL不可达", e);
+        } catch (WeedFSException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            logger.error("WeedFSException", e);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            logger.error("io读取错误", e);
+        }
+        return StringUtils.EMPTY;
+    }
+}

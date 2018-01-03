@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:cache="http://www.springframework.org/schema/cache"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:pisces="http://www.pisces.framework/schema/pisces"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	 http://www.springframework.org/schema/cache      http://www.springframework.org/schema/cache/spring-cache.xsd
+	 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+	 http://www.springframework.org/schema/tx      http://www.springframework.org/schema/tx/spring-tx.xsd 
+	  http://www.springframework.org/schema/util  http://www.springframework.org/schema/util/spring-util.xsd
+	http://www.pisces.framework/schema/pisces http://www.pisces.framework/schema/pisces.xsd 
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+	<context:component-scan base-package="com.igool"/>
+	<!-- 自动加载第三方JAR -->
+	<context:annotation-config />
+
+	<import resource="config.xml" />
+<!--	<import resource="session.xml" />-->
+	<import resource="spring-context-motan-client-db.xml"/>
+	<import resource="shared-datasource-config.xml"/>
+
+	<bean id="imagePhotoRelPastMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface" value="com.igool.dzda.mapper.ImagePhotoRelPastMapper"/>
+		<property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+	</bean>
+
+	<bean id="imagePhotoRelPastService" class="com.igool.dzda.server.impl.ImagePhotoRelPastServiceImpl">
+		<property name="imagePhotoRelPastMapper" ref="imagePhotoRelPastMapper" />
+	</bean>
+
+
+
+</beans>

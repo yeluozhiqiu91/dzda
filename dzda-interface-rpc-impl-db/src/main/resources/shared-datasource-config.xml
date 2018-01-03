@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:rdb="http://www.dangdang.com/schema/ddframe/rdb"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                        http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/tx
+                        http://www.springframework.org/schema/tx/spring-tx.xsd
+                        http://www.springframework.org/schema/context
+                        http://www.springframework.org/schema/context/spring-context.xsd
+                        http://www.dangdang.com/schema/ddframe/rdb
+                        http://www.dangdang.com/schema/ddframe/rdb/rdb.xsd">
+    <!--<context:property-placeholder location="classpath:config.properties" ignore-unresolvable="true"/>
+    --><bean id="dataSource0" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close"
+          p:driverClassName="${jdbc1.driverClassName}"
+          p:jdbcUrl="${jdbc1.url}"      p:username="${jdbc1.username}" p:password="${jdbc1.password}">
+        <property name="dataSourceProperties" >
+            <props>
+                <prop key="cachePrepStmts">${jdbc.cachePrepStmts}</prop>
+                <prop key="prepStmtCacheSize">${jdbc.prepStmtCacheSize}</prop>
+                <prop key="prepStmtCacheSqlLimit">${jdbc.prepStmtCacheSqlLimit}</prop>
+                <prop key="useServerPrepStmts">${jdbc.useServerPrepStmts}</prop>
+                <prop key="useLocalSessionState">${jdbc.useLocalSessionState}</prop>
+                <prop key="useLocalTransactionState">${jdbc.useLocalTransactionState}</prop>
+                <prop key="rewriteBatchedStatements">${jdbc.rewriteBatchedStatements}</prop>
+                <prop key="cacheResultSetMetadata">${jdbc.cacheResultSetMetadata}</prop>
+                <prop key="cacheServerConfiguration">${jdbc.cacheServerConfiguration}</prop>
+                <prop key="elideSetAutoCommits">${jdbc.elideSetAutoCommits}</prop>
+                <prop key="maintainTimeStats">${jdbc.maintainTimeStats}</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="dataSource1" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close"
+          p:driverClassName="${jdbc2.driverClassName}"
+          p:jdbcUrl="${jdbc2.url}"      p:username="${jdbc2.username}" p:password="${jdbc2.password}">
+        <property name="dataSourceProperties" >
+            <props>
+                <prop key="cachePrepStmts">${jdbc.cachePrepStmts}</prop>
+                <prop key="prepStmtCacheSize">${jdbc.prepStmtCacheSize}</prop>
+                <prop key="prepStmtCacheSqlLimit">${jdbc.prepStmtCacheSqlLimit}</prop>
+                <prop key="useServerPrepStmts">${jdbc.useServerPrepStmts}</prop>
+                <prop key="useLocalSessionState">${jdbc.useLocalSessionState}</prop>
+                <prop key="useLocalTransactionState">${jdbc.useLocalTransactionState}</prop>
+                <prop key="rewriteBatchedStatements">${jdbc.rewriteBatchedStatements}</prop>
+                <prop key="cacheResultSetMetadata">${jdbc.cacheResultSetMetadata}</prop>
+                <prop key="cacheServerConfiguration">${jdbc.cacheServerConfiguration}</prop>
+                <prop key="elideSetAutoCommits">${jdbc.elideSetAutoCommits}</prop>
+                <prop key="maintainTimeStats">${jdbc.maintainTimeStats}</prop>
+            </props>
+        </property>
+    </bean>
+    <bean id="dataSource2" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close"
+          p:driverClassName="${jdbc3.driverClassName}"
+          p:jdbcUrl="${jdbc3.url}"      p:username="${jdbc3.username}" p:password="${jdbc3.password}">
+        <property name="dataSourceProperties" >
+            <props>
+                <prop key="cachePrepStmts">${jdbc.cachePrepStmts}</prop>
+                <prop key="prepStmtCacheSize">${jdbc.prepStmtCacheSize}</prop>
+                <prop key="prepStmtCacheSqlLimit">${jdbc.prepStmtCacheSqlLimit}</prop>
+                <prop key="useServerPrepStmts">${jdbc.useServerPrepStmts}</prop>
+                <prop key="useLocalSessionState">${jdbc.useLocalSessionState}</prop>
+                <prop key="useLocalTransactionState">${jdbc.useLocalTransactionState}</prop>
+                <prop key="rewriteBatchedStatements">${jdbc.rewriteBatchedStatements}</prop>
+                <prop key="cacheResultSetMetadata">${jdbc.cacheResultSetMetadata}</prop>
+                <prop key="cacheServerConfiguration">${jdbc.cacheServerConfiguration}</prop>
+                <prop key="elideSetAutoCommits">${jdbc.elideSetAutoCommits}</prop>
+                <prop key="maintainTimeStats">${jdbc.maintainTimeStats}</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="dataSource3" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close"
+          p:driverClassName="${jdbc4.driverClassName}"
+          p:jdbcUrl="${jdbc4.url}"      p:username="${jdbc4.username}" p:password="${jdbc4.password}">
+        <property name="dataSourceProperties" >
+            <props>
+                <prop key="cachePrepStmts">${jdbc.cachePrepStmts}</prop>
+                <prop key="prepStmtCacheSize">${jdbc.prepStmtCacheSize}</prop>
+                <prop key="prepStmtCacheSqlLimit">${jdbc.prepStmtCacheSqlLimit}</prop>
+                <prop key="useServerPrepStmts">${jdbc.useServerPrepStmts}</prop>
+                <prop key="useLocalSessionState">${jdbc.useLocalSessionState}</prop>
+                <prop key="useLocalTransactionState">${jdbc.useLocalTransactionState}</prop>
+                <prop key="rewriteBatchedStatements">${jdbc.rewriteBatchedStatements}</prop>
+                <prop key="cacheResultSetMetadata">${jdbc.cacheResultSetMetadata}</prop>
+                <prop key="cacheServerConfiguration">${jdbc.cacheServerConfiguration}</prop>
+                <prop key="elideSetAutoCommits">${jdbc.elideSetAutoCommits}</prop>
+                <prop key="maintainTimeStats">${jdbc.maintainTimeStats}</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="dataSource4" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close"
+          p:driverClassName="${jdbc5.driverClassName}"
+          p:jdbcUrl="${jdbc5.url}"      p:username="${jdbc5.username}" p:password="${jdbc5.password}">
+        <property name="dataSourceProperties" >
+            <props>
+                <prop key="cachePrepStmts">${jdbc.cachePrepStmts}</prop>
+                <prop key="prepStmtCacheSize">${jdbc.prepStmtCacheSize}</prop>
+                <prop key="prepStmtCacheSqlLimit">${jdbc.prepStmtCacheSqlLimit}</prop>
+                <prop key="useServerPrepStmts">${jdbc.useServerPrepStmts}</prop>
+                <prop key="useLocalSessionState">${jdbc.useLocalSessionState}</prop>
+                <prop key="useLocalTransactionState">${jdbc.useLocalTransactionState}</prop>
+                <prop key="rewriteBatchedStatements">${jdbc.rewriteBatchedStatements}</prop>
+                <prop key="cacheResultSetMetadata">${jdbc.cacheResultSetMetadata}</prop>
+                <prop key="cacheServerConfiguration">${jdbc.cacheServerConfiguration}</prop>
+                <prop key="elideSetAutoCommits">${jdbc.elideSetAutoCommits}</prop>
+                <prop key="maintainTimeStats">${jdbc.maintainTimeStats}</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="dataSource5" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close"
+          p:driverClassName="${jdbc6.driverClassName}"
+          p:jdbcUrl="${jdbc6.url}"      p:username="${jdbc6.username}" p:password="${jdbc6.password}">
+        <property name="dataSourceProperties" >
+            <props>
+                <prop key="cachePrepStmts">${jdbc.cachePrepStmts}</prop>
+                <prop key="prepStmtCacheSize">${jdbc.prepStmtCacheSize}</prop>
+                <prop key="prepStmtCacheSqlLimit">${jdbc.prepStmtCacheSqlLimit}</prop>
+                <prop key="useServerPrepStmts">${jdbc.useServerPrepStmts}</prop>
+                <prop key="useLocalSessionState">${jdbc.useLocalSessionState}</prop>
+                <prop key="useLocalTransactionState">${jdbc.useLocalTransactionState}</prop>
+                <prop key="rewriteBatchedStatements">${jdbc.rewriteBatchedStatements}</prop>
+                <prop key="cacheResultSetMetadata">${jdbc.cacheResultSetMetadata}</prop>
+                <prop key="cacheServerConfiguration">${jdbc.cacheServerConfiguration}</prop>
+                <prop key="elideSetAutoCommits">${jdbc.elideSetAutoCommits}</prop>
+                <prop key="maintainTimeStats">${jdbc.maintainTimeStats}</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="dataSource6" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close"
+          p:driverClassName="${jdbc7.driverClassName}"
+          p:jdbcUrl="${jdbc7.url}"      p:username="${jdbc7.username}" p:password="${jdbc7.password}">
+        <property name="dataSourceProperties" >
+            <props>
+                <prop key="cachePrepStmts">${jdbc.cachePrepStmts}</prop>
+                <prop key="prepStmtCacheSize">${jdbc.prepStmtCacheSize}</prop>
+                <prop key="prepStmtCacheSqlLimit">${jdbc.prepStmtCacheSqlLimit}</prop>
+                <prop key="useServerPrepStmts">${jdbc.useServerPrepStmts}</prop>
+                <prop key="useLocalSessionState">${jdbc.useLocalSessionState}</prop>
+                <prop key="useLocalTransactionState">${jdbc.useLocalTransactionState}</prop>
+                <prop key="rewriteBatchedStatements">${jdbc.rewriteBatchedStatements}</prop>
+                <prop key="cacheResultSetMetadata">${jdbc.cacheResultSetMetadata}</prop>
+                <prop key="cacheServerConfiguration">${jdbc.cacheServerConfiguration}</prop>
+                <prop key="elideSetAutoCommits">${jdbc.elideSetAutoCommits}</prop>
+                <prop key="maintainTimeStats">${jdbc.maintainTimeStats}</prop>
+            </props>
+        </property>
+    </bean>
+    <bean id="dataSource7" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close"
+          p:driverClassName="${jdbc8.driverClassName}"
+          p:jdbcUrl="${jdbc8.url}"      p:username="${jdbc8.username}" p:password="${jdbc8.password}">
+        <property name="dataSourceProperties" >
+            <props>
+                <prop key="cachePrepStmts">${jdbc.cachePrepStmts}</prop>
+                <prop key="prepStmtCacheSize">${jdbc.prepStmtCacheSize}</prop>
+                <prop key="prepStmtCacheSqlLimit">${jdbc.prepStmtCacheSqlLimit}</prop>
+                <prop key="useServerPrepStmts">${jdbc.useServerPrepStmts}</prop>
+                <prop key="useLocalSessionState">${jdbc.useLocalSessionState}</prop>
+                <prop key="useLocalTransactionState">${jdbc.useLocalTransactionState}</prop>
+                <prop key="rewriteBatchedStatements">${jdbc.rewriteBatchedStatements}</prop>
+                <prop key="cacheResultSetMetadata">${jdbc.cacheResultSetMetadata}</prop>
+                <prop key="cacheServerConfiguration">${jdbc.cacheServerConfiguration}</prop>
+                <prop key="elideSetAutoCommits">${jdbc.elideSetAutoCommits}</prop>
+                <prop key="maintainTimeStats">${jdbc.maintainTimeStats}</prop>
+            </props>
+        </property>
+    </bean>
+
+    <rdb:strategy id="databaseShardingStrategy" sharding-columns="image_id"  algorithm-class="com.igool.algorithm.SingleKeyModuloDatabaseShardingAlgorithm" />
+    <rdb:data-source id="shardingDataSource">
+        <rdb:sharding-rule data-sources="dataSource0, dataSource1, dataSource2, dataSource3, dataSource4, dataSource5, dataSource6, dataSource7">
+            <rdb:table-rules>
+                <rdb:table-rule logic-table="t_da_image_photo_rel_copy" actual-tables="t_da_image_photo_rel_copy" database-strategy="databaseShardingStrategy" >
+                    <rdb:generate-key-column column-name="ip_id"/>
+                </rdb:table-rule>
+                <!--<rdb:table-rule logic-table="t_sys_user_info" actual-tables="dataSource.t_sys_user_info"></rdb:table-rule>
+                <rdb:table-rule logic-table="t_sys_roles" actual-tables="dataSource.t_sys_roles"></rdb:table-rule>
+                <rdb:table-rule logic-table="t_sys_roles_resource_rel" actual-tables="dataSource.t_sys_roles_resource_rel"></rdb:table-rule>
+                <rdb:table-rule logic-table="t_sys_module" actual-tables="dataSource.t_sys_module"></rdb:table-rule>
+                <rdb:table-rule logic-table="t_sys_user_roles_rel" actual-tables="dataSource.t_sys_user_roles_rel"></rdb:table-rule>
+                <rdb:table-rule logic-table="t_da_business_info" actual-tables="dataSource.t_da_business_info"></rdb:table-rule>
+                <rdb:table-rule logic-table="t_da_plate_type" actual-tables="dataSource.t_da_plate_type"></rdb:table-rule>
+                <rdb:table-rule logic-table="t_da_business_type_info" actual-tables="dataSource.t_da_business_type_info"></rdb:table-rule>-->
+            </rdb:table-rules>
+            <rdb:default-database-strategy sharding-columns="none" algorithm-class="com.dangdang.ddframe.rdb.sharding.api.strategy.database.NoneDatabaseShardingAlgorithm"/>
+            <rdb:default-table-strategy sharding-columns="none" algorithm-class="com.dangdang.ddframe.rdb.sharding.api.strategy.table.NoneTableShardingAlgorithm"/>
+        </rdb:sharding-rule>
+    </rdb:data-source>
+
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="shardingDataSource" />
+    </bean>
+    <tx:annotation-driven transaction-manager="transactionManager" />
+</beans>

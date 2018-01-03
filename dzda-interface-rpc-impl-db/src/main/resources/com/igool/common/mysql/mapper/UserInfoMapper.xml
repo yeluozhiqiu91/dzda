@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2010-2013 the original author or authors. Licensed under the
+	Apache License, Version 2.0 (the "License"); you may not use this file except
+	in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+	Unless required by applicable law or agreed to in writing, software distributed
+	under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+	OR CONDITIONS OF ANY KIND, either express or implied. See the License for
+	the specific language governing permissions and limitations under the License. -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.igool.rpc.db.mysql.mapper.UserInfoMapper">
+    <resultMap id="userMap" type="com.igool.rpc.db.model.thrift.UserInfo">
+        <!--<result property="userId" column="user_id"></result>
+        <result property="account" column="account"></result>
+        <result property="name" column="name"></result>
+        <result property="departmentId" column="department_id"></result>
+        <result property="isSuperAdmin" column="isSuperadmin"></result>
+        <result property="password" column="password"></result>
+        <result property="idCard" column="id_card"></result>
+        <result property="updateDate" column="update_date"></result>
+        <result property="lastDate" column="last_date"></result>
+        <result property="status" column="status"></result>
+        <result property="createUser" column="create_user"></result>
+        <result property="createDate" column="create_date"></result>
+        <result property="delUser" column="del_user"></result>
+        <result property="delDate" column="del_date"></result>
+        <result property="orderNum" column="order_num"></result>-->
+    </resultMap>
+    <select id="getUserInfoList" resultMap="userMap" parameterType="com.igool.rpc.db.model.thrift.UserInfo">
+        SELECT u.user_id as userId,
+        u.account as account,
+        u.name as name,
+        u.department_id as departmentId,
+        u.isSuperadmin as isSuperAdmin,
+        u.password as password,
+        u.id_card as idCard,
+        date_format(u.update_date,'%Y-%m-%d %H:%i:%s') as updateDate,
+        date_format(u.last_date,'%Y-%m-%d %H:%i:%s') as lastDate,
+        u.status as status,
+        u.create_user as createUser,
+        date_format(u.create_date,'%Y-%m-%d %H:%i:%s') as createDate,
+        u.del_user as delUser,
+        date_format(u.del_date,'%Y-%m-%d %H:%i:%s') as delDate,
+        u.order_num as orderNum,
+        t.name as departmentName
+        FROM t_sys_user_info u
+        left join t_sys_department_info t on t.department_id= u.department_id
+        where u.isSuperAdmin=0
+        <if test="userinfo.name!=null and userinfo.name!=''">
+            and u.name like '?%'
+        </if>
+        order by u.order_num
+    </select>
+    <select id="getUserInfoListCount" parameterType="com.igool.rpc.db.model.thrift.UserInfo" resultType="long">
+        select count(*)
+        FROM t_sys_user_info where 1=1
+        <if test="userinfo.name!=null and userinfo.name!=''">
+            and name like concat(#{userinfo.name},'%')
+        </if>
+        order by order_num
+    </select>
+    <!--<insert id="addUser" parameterType="com.igool.rpc.db.model.thrift.UserInfo">
+        insert INTO t_sys_user_info(account,name,department_id,isSuperadmin,password,id_card,status,create_user,create_date,order_num)
+        VALUES (#{account},#{name},#{departmentId},#{isSuperAdmin},#{password},#{idCard},#{status},#{createUser},#{date_format(createDate,'%Y-%m-%d %H:%i:%s')},#{orderNum})
+    </insert>-->
+    <select id="findUserById" resultType="com.igool.rpc.db.model.thrift.UserInfo">
+        SELECT user_id as userId,
+        account as account,
+        name as name,
+        department_id as departmentId,
+        isSuperadmin as isSuperAdmin,
+        password as password,
+        id_card as idCard,
+        date_format(update_date,'%Y-%m-%d %H:%i:%s') as updateDate,
+        date_format(last_date,'%Y-%m-%d %H:%i:%s') as lastDate,
+        status as status,
+        create_user as createUser,
+        date_format(create_date,'%Y-%m-%d %H:%i:%s') as createDate,
+        del_user as delUser,
+        date_format(del_date,'%Y-%m-%d %H:%i:%s') as delDate,
+        order_num as orderNum
+        FROM t_sys_user_info
+        WHERE user_id=#{uid}
+    </select>
+    <select id="findUserByAccountAndPwd" resultType="com.igool.rpc.db.model.thrift.UserInfo">
+        SELECT user_id as userId,
+        account as account,
+        name as name,
+        department_id as departmentId,
+        isSuperadmin as isSuperAdmin,
+        password as password,
+        id_card as idCard,
+        date_format(update_date,'%Y-%m-%d %H:%i:%s') as updateDate,
+        date_format(last_date,'%Y-%m-%d %H:%i:%s') as lastDate,
+        status as status,
+        create_user as createUser,
+        date_format(create_date,'%Y-%m-%d %H:%i:%s') as createDate,
+        del_user as delUser,
+        date_format(del_date,'%Y-%m-%d %H:%i:%s') as delDate,
+        order_num as orderNum
+        FROM t_sys_user_info
+        WHERE account=#{account} and password=#{password} limit 1
+    </select>
+    <insert id="addUser" parameterType="com.igool.rpc.db.model.thrift.UserInfo">
+        INSERT INTO t_sys_user_info(account,name,department_id,isSuperadmin,password,id_card,status,create_user,create_date,order_num)
+        VALUES (#{account},#{name},#{departmentId},0,#{password},#{idCard},#{status},#{createUser},now(),#{orderNum})
+    </insert>
+    <update id="updateUser" parameterType="com.igool.rpc.db.model.thrift.UserInfo">
+        UPDATE t_sys_user_info
+        set account=#{userinfo.account},
+        name=#{userinfo.name},
+        department_id=#{userinfo.departmentId},
+        id_card=#{userinfo.idCard},
+        order_num=#{userinfo.orderNum},
+        status=#{userinfo.status},
+        update_date=now()
+        where user_id=#{userinfo.userId}
+    </update>
+    <update id="updatePassword" parameterType="com.igool.rpc.db.model.thrift.UserInfo">
+        UPDATE t_sys_user_info
+        set password=#{userinfo.password}
+        where user_id=#{userinfo.userId}
+    </update>
+    <update id="resetPassword">
+        UPDATE t_sys_user_info
+        set password=#{password}
+        where user_id=#{uid}
+    </update>
+    <select id="getAllUser" resultMap="userMap">
+        SELECT user_id as userId,
+        account as account,
+        name as name,
+        department_id as departmentId,
+        isSuperadmin as isSuperAdmin,
+        password as password,
+        id_card as idCard,
+        date_format(update_date,'%Y-%m-%d %H:%i:%s') as updateDate,
+        date_format(last_date,'%Y-%m-%d %H:%i:%s') as lastDate,
+        status as status,
+        create_user as createUser,
+        date_format(create_date,'%Y-%m-%d %H:%i:%s') as createDate,
+        del_user as delUser,
+        date_format(del_date,'%Y-%m-%d %H:%i:%s') as delDate,
+        order_num as orderNum
+        FROM t_sys_user_info
+    </select>
+</mapper>

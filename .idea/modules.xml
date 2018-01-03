@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/dzda.iml" filepath="$PROJECT_DIR$/dzda.iml" />
+      <module fileurl="file://$PROJECT_DIR$/dzda-job/dzda-job.iml" filepath="$PROJECT_DIR$/dzda-job/dzda-job.iml" />
+      <module fileurl="file://$PROJECT_DIR$/dzda-interface-rpc/dzda-rpc.iml" filepath="$PROJECT_DIR$/dzda-interface-rpc/dzda-rpc.iml" />
+      <module fileurl="file://$PROJECT_DIR$/dzda-interface-rpc-db/dzda-rpc-db.iml" filepath="$PROJECT_DIR$/dzda-interface-rpc-db/dzda-rpc-db.iml" />
+      <module fileurl="file://$PROJECT_DIR$/dzda-interface-rpc-impl/dzda-rpc-impl.iml" filepath="$PROJECT_DIR$/dzda-interface-rpc-impl/dzda-rpc-impl.iml" />
+      <module fileurl="file://$PROJECT_DIR$/dzda-interface-rpc-impl-db/dzda-rpc-impl-db.iml" filepath="$PROJECT_DIR$/dzda-interface-rpc-impl-db/dzda-rpc-impl-db.iml" />
+      <module fileurl="file://$PROJECT_DIR$/dzda-shared-data-sync/dzda-shared-data-sync.iml" filepath="$PROJECT_DIR$/dzda-shared-data-sync/dzda-shared-data-sync.iml" />
+      <module fileurl="file://$PROJECT_DIR$/dzda-web/dzda-web.iml" filepath="$PROJECT_DIR$/dzda-web/dzda-web.iml" />
+      <module fileurl="file://$PROJECT_DIR$/dzda-web-html/dzda-web-html.iml" filepath="$PROJECT_DIR$/dzda-web-html/dzda-web-html.iml" />
+      <module fileurl="file://$PROJECT_DIR$/dzda-interface-rpc-support/swift-rpc-support.iml" filepath="$PROJECT_DIR$/dzda-interface-rpc-support/swift-rpc-support.iml" />
+    </modules>
+  </component>
+</project>

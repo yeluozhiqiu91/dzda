@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:cache="http://www.springframework.org/schema/cache"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:pisces="http://www.pisces.framework/schema/pisces"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	 http://www.springframework.org/schema/cache      http://www.springframework.org/schema/cache/spring-cache.xsd
+	 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+	 http://www.springframework.org/schema/tx      http://www.springframework.org/schema/tx/spring-tx.xsd 
+	  http://www.springframework.org/schema/util  http://www.springframework.org/schema/util/spring-util.xsd
+	http://www.pisces.framework/schema/pisces http://www.pisces.framework/schema/pisces.xsd 
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+	<context:component-scan base-package="com.igool"/>
+	<!-- 自动加载第三方JAR -->
+	<context:annotation-config />
+
+	<import resource="config.xml" />
+<!--	<import resource="session.xml" />-->
+	<import resource="job.xml"/>
+	<import resource="spring-context-motan-client-db.xml"/>
+
+	<bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close"
+		  p:driverClassName="${jdbc.driverClassName}"
+		  p:jdbcUrl="${jdbc.url}"      p:username="${jdbc.username}" p:password="${jdbc.password}">
+		<property name="dataSourceProperties">
+			<props>
+				<prop key="cachePrepStmts">${jdbc.cachePrepStmts}</prop>
+				<prop key="prepStmtCacheSize">${jdbc.prepStmtCacheSize}</prop>
+				<prop key="prepStmtCacheSqlLimit">${jdbc.prepStmtCacheSqlLimit}</prop>
+				<prop key="useServerPrepStmts">${jdbc.useServerPrepStmts}</prop>
+				<prop key="useLocalSessionState">${jdbc.useLocalSessionState}</prop>
+				<prop key="useLocalTransactionState">${jdbc.useLocalTransactionState}</prop>
+				<prop key="rewriteBatchedStatements">${jdbc.rewriteBatchedStatements}</prop>
+				<prop key="cacheResultSetMetadata">${jdbc.cacheResultSetMetadata}</prop>
+				<prop key="cacheServerConfiguration">${jdbc.cacheServerConfiguration}</prop>
+				<prop key="elideSetAutoCommits">${jdbc.elideSetAutoCommits}</prop>
+				<prop key="maintainTimeStats">${jdbc.maintainTimeStats}</prop>
+			</props>
+		</property>
+	</bean>
+	<!-- 配置session工厂 -->
+	<bean id="sqlSessionFactoryMysql" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"></property>
+		<property name="typeAliasesPackage"
+				  value="com.igool.rpc.db.model.thrift"/>
+		<property name="mapperLocations">
+			<value>classpath:com/igool/dzda/job/mapper/*Mapper.xml</value>
+		</property>
+	</bean>
+	<bean id="transactionManagerMysql" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.igool.dzda.job.mapper"/>
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryMysql"/>
+	</bean>
+</beans>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="dzda-job" />
+        <module name="dzda-rpc" />
+        <module name="dzda-rpc-db" />
+        <module name="dzda-rpc-impl" />
+        <module name="dzda-rpc-impl-db" />
+        <module name="dzda-shared-data-sync" />
+        <module name="dzda-web" />
+        <module name="dzda-web-html" />
+        <module name="swift-rpc-support" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="dzda" target="1.5" />
+      <module name="dzda-job" target="1.8" />
+      <module name="dzda-rpc" target="1.8" />
+      <module name="dzda-rpc-db" target="1.8" />
+      <module name="dzda-rpc-impl" target="1.8" />
+      <module name="dzda-rpc-impl-db" target="1.8" />
+      <module name="dzda-shared-data-sync" target="1.8" />
+      <module name="dzda-web" target="1.7" />
+      <module name="dzda-web-html" target="1.8" />
+      <module name="swift-rpc-support" target="1.7" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.igool.rpc.db.oracle.mapper.SynVehicleMapper">
+
+    <resultMap id="vehicleDetailMap" type="com.igool.rpc.db.model.thrift.VehicleDetail">
+    </resultMap>
+    <select id="findVehicleDetailsBySfz" resultMap="vehicleDetailMap">
+        select syr as syr,
+        sfzmhm as sfz,
+        hphm as hphm,
+        clsbdh as clsbdh,
+        hpzl as hpzl,
+        cllx as cllx,
+        clxh as clxh,
+        csys as csys,
+        syxz as syxz,
+        zt as zt,
+        to_char(ccdjrq,'yyyy-MM-dd') as ccdjrq,
+        sjhm as sjhm,
+        dabh as dabh
+        from VEHICLE
+        where  hphm in ${hphms}
+        and hpzl in ${hpzls}
+        order by CCDJRQ asc
+    </select>
+
+</mapper>

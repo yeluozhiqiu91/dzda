@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2010-2013 the original author or authors. Licensed under the
+	Apache License, Version 2.0 (the "License"); you may not use this file except
+	in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+	Unless required by applicable law or agreed to in writing, software distributed
+	under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+	OR CONDITIONS OF ANY KIND, either express or implied. See the License for
+	the specific language governing permissions and limitations under the License. -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.igool.rpc.db.mysql.mapper.DeliveryInfoMapper">
+
+    <resultMap id="deliveryMap" type="com.igool.rpc.db.model.thrift.DeliveryInfo"></resultMap>
+
+    <select id="getMaxDeliveryId" resultType="String">
+        select code from t_da_delivery_info where delivery_id =(select max(delivery_id) from t_da_delivery_info)
+    </select>
+
+    <insert id="addDeliveryInfo" parameterType="com.igool.rpc.db.model.thrift.DeliveryInfo"
+            useGeneratedKeys="true" keyColumn="delivery_id" keyProperty="deliveryInfo.deliveryId" >
+        insert into t_da_delivery_info(code,register_person,register_date,create_date,jjlx)
+        VALUES (#{deliveryInfo.code},#{deliveryInfo.registerPerson},str_to_date(#{deliveryInfo.registerDate},'%Y-%m-%d %T'),str_to_date(#{deliveryInfo.registerDate},'%Y-%m-%d %T'),#{deliveryInfo.jjlx})
+    </insert>
+
+    <insert id="addDeliveryInfoRel"  >
+        insert into t_da_delivery_rel(delivery_id,create_date,business_id)
+        VALUES
+        <foreach collection="businessIds" item="bid" separator=",">
+            (#{deliveryId},now(),#{bid})
+        </foreach>
+    </insert>
+    <select id="findDeliveryInfoByPcCode" resultType="com.igool.rpc.db.model.thrift.DeliveryInfo">
+        select d.delivery_id as deliveryId,
+        d.code  as code,
+        d.register_person as registerPerson,
+        date_format(d.register_date,'%Y-%m-%d %H:%i:%s') as registerDate,
+        date_format(d.create_date,'%Y-%m-%d %H:%i:%s') as createDate,
+        d.jjlx as jjlx,
+        u.name as registerPersonName
+        from t_da_delivery_info d left join t_sys_user_info u
+        on u.user_id=d.register_person
+        where d.code=#{pcCode}
+    </select>
+    <select id="getDeliveryListBza" resultMap="deliveryMap">
+        select d.code as code,
+        d.register_person as registerPerson,
+        date_format(d.register_date,'%Y-%m-%d %H:%i:%s') as registerDate,
+        s.receiver as signPerson,
+        s.`status` as status from
+        (select * from t_da_delivery_info e where e.jjlx=3
+        <if test="startTime!=null and startTime!=''">
+            and e.register_date&gt;=#{startTime}
+        </if>
+        <if test="endTime!=null and endTime!=''">
+            and e.register_date&lt;#{endTime}
+        </if>
+        <if test="pcCode!=null and pcCode!=''">
+            and e.code=#{pcCode}
+        </if>
+        ) as d
+        left join t_da_signing s on s.code=d.code
+    </select>
+    <select id="getDeliveryListCountBza" resultType="long">
+        select count(*) from t_da_delivery_info e where e.jjlx=3
+        <if test="startTime!=null and startTime!=''">
+            and e.register_date&gt;=#{startTime}
+        </if>
+        <if test="endTime!=null and endTime!=''">
+            and e.register_date&lt;#{endTime}
+        </if>
+        <if test="pcCode!=null and pcCode!=''">
+            and e.code=#{pcCode}
+        </if>
+    </select>
+    <select id="getDjCountByPcCode" resultType="int">
+        select count(*) from t_da_delivery_rel where delivery_id=
+        (select delivery_id from t_da_delivery_info where code=#{pcCode})
+    </select>
+
+    <select id="findDeliveryByCodeAndDate" resultType="com.igool.rpc.db.model.thrift.DeliveryInfo">
+        select delivery_id as deliveryId,code as code,register_person as registerPerson,date_format(register_date,'%Y-%m-%d %T') as registerDate
+        from t_da_delivery_info
+        where  jjlx=1
+        <if test="start != null and start != ''">
+            and register_date &gt;= str_to_date(#{start},'%Y-%m-%d %T')
+        </if>
+        <if test="end != null and end != ''">
+            and register_date &lt;= str_to_date(#{end},'%Y-%m-%d %T')
+        </if>
+        <if test="code != null and code != ''">
+            and code=#{code}
+        </if>
+        <if test="(start == null or start == '') and (end == null or end == '') and (code == null or code == '')">
+            and DATE_FORMAT(register_date,'%m')=DATE_FORMAT(now(),'%m')
+        </if>
+        order by register_date desc
+    </select>
+
+    <select id="findDeliveryByCodeAndDateCount" resultType="long">
+        select count(delivery_id) from t_da_delivery_info
+        where jjlx=1
+        <if test="start != null and start != ''">
+            and register_date &gt;= str_to_date(#{start},'%Y-%m-%d %T')
+        </if>
+        <if test="end != null and end != ''">
+            and register_date &lt;= str_to_date(#{end},'%Y-%m-%d %T')
+        </if>
+        <if test="code != null and code != ''">
+            and code=#{code}
+        </if>
+        <if test="(start == null or start == '') and (end == null or end == '') and (code == null or code == '')">
+            and DATE_FORMAT(register_date,'%m')=DATE_FORMAT(now(),'%m')
+        </if>
+    </select>
+
+    <select id="getJjlxByCodes" resultType="com.igool.rpc.db.model.thrift.DeliveryInfo">
+
+        select a1.code,if(scount=dcount,1,if(scount=0,2,3)) as jjlx from
+        (select d.code code,count(dr.delivery_id) dcount from
+        (select code,delivery_id from t_da_delivery_info where delivery_id in
+        <foreach collection="deliveryinfos" item="deliveryinfo" open="(" close=")" separator=",">
+            #{deliveryinfo.deliveryId}
+        </foreach>
+        ) d,t_da_delivery_rel dr
+        where d.delivery_id=dr.delivery_id group by d.code,dr.delivery_id HAVING dcount >0) a1 left join
+
+        (select s.code code,count(sr.signing_id) scount from
+        (select code,signing_id from t_da_signing where code in
+        <foreach collection="deliveryinfos" item="deliveryinfo" open="(" close=")" separator=",">
+            #{deliveryinfo.code}
+        </foreach>
+        ) s left join t_da_signing_rel sr
+        on  s.signing_id=sr.signing_id group by s.code,sr.signing_id) a2
+        on a1.code=a2.code
+
+    </select>
+
+    <select id="findRegisterNumberByCode" resultType="com.igool.rpc.db.model.thrift.DeliveryInfo" parameterType="com.igool.rpc.db.model.thrift.DeliveryInfo">
+        select d.code code,count(dr.delivery_id) as count from
+        (select code,delivery_id from t_da_delivery_info where delivery_id in
+        <foreach collection="deliveryinfos" item="deliveryinfo" open="(" close=")" separator=",">
+            #{deliveryinfo.deliveryId}
+        </foreach>
+        ) d,t_da_delivery_rel dr
+        where d.delivery_id=dr.delivery_id group by d.code,dr.delivery_id HAVING count >0
+    </select>
+
+    <update id="updateJjzt" >
+        update t_da_delivery_info set jjlx=#{type} where  delivery_id=#{deliveryId}
+    </update>
+
+    <select id="getDeliveryListByUserPurview" resultType="com.igool.rpc.db.model.thrift.DeliveryInfo">
+
+        select delivery_id as deliveryId,code as code,register_person as registerPerson,date_format(register_date,'%Y-%m-%d %H:%i:%s') as registerDate
+        from t_da_delivery_info
+        where 1=1
+        <if test="code != null and code != '' ">and code=#{code}</if>
+        <if test="startTime != null and startTime != '' ">
+            and register_date &gt;= str_to_date(#{startTime},'%Y-%m-%d %T')
+        </if>
+        <if test="endTime != null and endTime != '' ">
+            and register_date &lt;= str_to_date(#{endTime},'%Y-%m-%d %T')
+        </if>
+        <if test="isAdmin == false ">
+            and register_person=#{userId}
+        </if>
+        order by register_date desc
+    </select>
+
+
+    <select id="getDeliveryListByUserPurviewCount" resultType="int">
+        select count(delivery_id)
+        from t_da_delivery_info
+        where 1=1
+        <if test="code != null and code != '' ">and code=#{code}</if>
+        <if test="startTime != null and startTime != '' ">
+            and register_date &gt;= str_to_date(#{startTime},'%Y-%m-%d %T')
+        </if>
+        <if test="endTime != null and endTime != '' ">
+            and register_date &lt;= str_to_date(#{endTime},'%Y-%m-%d %T')
+        </if>
+        <if test="isAdmin == false ">
+            and register_person=#{userId}
+        </if>
+    </select>
+
+    <delete id="delDeliveryRel">
+        delete from t_da_delivery_rel where delivery_id =#{deliveryId} and business_id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <delete id="delDeliveryByPcCode" >
+        delete from t_da_delivery_info where code=#{pcCode}
+    </delete>
+    <select id="findDeliveryListByPcCode" resultType="com.igool.rpc.db.model.thrift.DeliveryInfo">
+        select d.delivery_id as deliveryId,
+        d.code as code,
+        d.register_person as registerPerson,
+        date_format(d.register_date,'%Y-%m-%d %H:%i:%s') as registerDate,
+        date_format(d.create_date,'%Y-%m-%d %H:%i:%s') as createDate,
+        d.jjlx as jjlx,
+        rel.business_id AS businessId
+        from t_da_delivery_info d left join t_da_delivery_rel rel
+        on d.delivery_id=rel.delivery_id
+        where d.code = #{pcCode}
+    </select>
+</mapper>

@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: framework.pisces.data4j:data4j-cache:0.0.1">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/framework/pisces/data4j/data4j-cache/0.0.1/data4j-cache-0.0.1.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/framework/pisces/data4j/data4j-cache/0.0.1/data4j-cache-0.0.1-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/framework/pisces/data4j/data4j-cache/0.0.1/data4j-cache-0.0.1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

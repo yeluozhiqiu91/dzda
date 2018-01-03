@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2010-2013 the original author or authors. Licensed under the
+	Apache License, Version 2.0 (the "License"); you may not use this file except
+	in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+	Unless required by applicable law or agreed to in writing, software distributed
+	under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+	OR CONDITIONS OF ANY KIND, either express or implied. See the License for
+	the specific language governing permissions and limitations under the License. -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.igool.rpc.db.mysql.mapper.BusinessTypeMapper">
+    <resultMap id="businessTypeMap" type="com.igool.rpc.db.model.thrift.BusinessTypeInfo">
+    </resultMap>
+    <resultMap id="businessTypeDetailMap" type="com.igool.rpc.db.model.thrift.BusinessTypeDetail">
+    </resultMap>
+    <select id="getAllBusinessType" resultMap="businessTypeMap">
+        select t.business_type_id as businessTypeId,
+        t.business_type as businessType,
+        date_format(t.create_date,'%Y-%m-%d %H:%i:%s') as createDate,
+        t.versions as versions,
+        t.name as name
+        from t_da_business_type_info t where 1=1
+        order by business_type_id
+    </select>
+    <select id="findBusinessTypeByYwlx" resultType="com.igool.rpc.db.model.thrift.BusinessTypeInfo">
+        select t.business_type_id as businessTypeId,
+        t.business_type as businessType,
+        date_format(t.create_date,'%Y-%m-%d %H:%i:%s') as createDate,
+        t.versions as versions,
+        t.name as name
+        from t_da_business_type_info t where t.business_type=#{ywlx} limit 1
+    </select>
+    <select id="findBusinessTypeDetailByTypeId" resultMap="businessTypeDetailMap">
+        select business_detail_id as businessDetailId,
+        business_type_id as businessTypeId,
+        detail_name as detailName,
+        image_count as imageCount,
+        image_order as imageOrder,
+        detail_coding as detailCoding,
+        isNecessity as isNecessity,
+        isSm as isSm,
+        remark as remark,
+        status as status
+        from t_da_business_type_detail where business_type_id=#{businessTypeId}
+    </select>
+    <select id="findBusinessTypeDetailByBusinessTypeIdAndIsNecessity" resultMap="businessTypeDetailMap">
+        select business_detail_id as businessDetailId,
+        business_type_id as businessTypeId,
+        detail_name as detailName,
+        image_count as imageCount,
+        image_order as imageOrder,
+        detail_coding as detailCoding,
+        isNecessity as isNecessity,
+        isSm as isSm,
+        remark as remark,
+        status as status
+        from t_da_business_type_detail where business_type_id=#{businessTypeId}
+        <if test="isNecessity!=null">
+            and isNecessity=#{isNecessity}
+        </if>
+    </select>
+    <select id="findBusinessTypeByLsh" resultType="com.igool.rpc.db.model.thrift.BusinessTypeInfo">
+        select t.business_type_id as businessTypeId,
+        t.business_type as businessType,
+        date_format(t.create_date,'%Y-%m-%d %H:%i:%s') as createDate,
+        t.versions as versions,
+        t.name as name
+        from t_da_business_info b,t_da_business_type_info t
+        where b.code=#{lsh} and b.business_type=t.business_type
+    </select>
+
+    <select id="getBusinessTypeDetailByBusinessType" resultType="com.igool.rpc.db.model.thrift.BusinessTypeDetail">
+
+        select a1.business_detail_id as businessDetailId,a1.detail_name as detailName,a2.business_detail_id as isQs from
+        (select business_detail_id,detail_name from t_da_business_type_detail where business_type_id =( select business_type_id from t_da_business_type_info where business_type=#{businessType} )) a1
+        left join
+        (select business_detail_id from t_da_business_qszl_rel where business_id=#{businessId} ) a2
+        on a1.business_detail_id=a2.business_detail_id;
+
+    </select>
+
+    <delete id="deleteBusinessQsZl">
+        delete from t_da_business_qszl_rel where business_id=#{businessId}
+    </delete>
+
+    <insert id="updateQsZl">
+        insert into t_da_business_qszl_rel(business_id,business_detail_id,create_time,create_user)
+        VALUES
+        <foreach collection="businessDetailIdList" item="businessDetailId" separator=",">
+            (#{businessId},#{businessDetailId},now(),#{userId})
+        </foreach>
+    </insert>
+    <select id="findBusinessTypeDetailByBstIdAndIsSm" resultMap="businessTypeDetailMap">
+        select business_detail_id as businessDetailId,
+        business_type_id as businessTypeId,
+        detail_name as detailName,
+        image_count as imageCount,
+        image_order as imageOrder,
+        detail_coding as detailCoding,
+        isNecessity as isNecessity,
+        isSm as isSm,
+        remark as remark,
+        status as status
+        from t_da_business_type_detail where business_type_id=#{businessTypeId}
+        <if test="isSm!=null">
+            and isSm=#{isSm}
+        </if>
+    </select>
+
+</mapper>

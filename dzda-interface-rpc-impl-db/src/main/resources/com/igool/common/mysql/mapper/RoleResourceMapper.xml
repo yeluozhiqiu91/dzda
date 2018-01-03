@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2010-2013 the original author or authors. Licensed under the
+	Apache License, Version 2.0 (the "License"); you may not use this file except
+	in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+	Unless required by applicable law or agreed to in writing, software distributed
+	under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+	OR CONDITIONS OF ANY KIND, either express or implied. See the License for
+	the specific language governing permissions and limitations under the License. -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.igool.rpc.db.mysql.mapper.RoleResourceMapper">
+    <resultMap id="resourceMap" type="com.igool.rpc.db.model.thrift.Resource">
+        <!--<result property="userId" column="user_id"></result>
+        <result property="account" column="account"></result>
+        <result property="name" column="name"></result>
+        <result property="departmentId" column="department_id"></result>
+        <result property="isSuperAdmin" column="isSuperadmin"></result>
+        <result property="password" column="password"></result>
+        <result property="idCard" column="id_card"></result>
+        <result property="updateDate" column="update_date"></result>
+        <result property="lastDate" column="last_date"></result>
+        <result property="status" column="status"></result>
+        <result property="createUser" column="create_user"></result>
+        <result property="createDate" column="create_date"></result>
+        <result property="delUser" column="del_user"></result>
+        <result property="delDate" column="del_date"></result>
+        <result property="orderNum" column="order_num"></result>-->
+    </resultMap>
+    <select id="getAdminPermissionList" resultMap="resourceMap" parameterType="com.igool.rpc.db.model.thrift.UserInfo">
+        SELECT m.module_id as moduleId,
+        m.name as name,
+        m.path as path,
+        m.parent_id as parentId,
+        m.code as code,
+        m.order_num as orderNum,
+        m.remarks as remarks,
+        m.status as status,
+        m.create_user as createUser,
+        date_format(m.create_date,'%Y-%m-%d %H:%i:%s') as createDate,
+        m.update_user as updateUser,
+        date_format(m.update_date,'%Y-%m-%d %H:%i:%s') as updateDate
+        FROM t_sys_module m
+        <if test="userInfo.isSuperAdmin==1">
+        where m.status=1
+        </if>
+        <if test="userInfo.isSuperAdmin!=1">
+            where m.status=1
+            and m.module_id in(select r.resource_id from t_sys_roles_resource_rel r,t_sys_user_roles_rel u where u.roles_id=r.roles_id and u.user_id=#{userInfo.userId})
+        </if>
+        order by parentId,orderNum
+    </select>
+    <select id="getResourceList" resultMap="resourceMap">
+        SELECT m.module_id as moduleId,
+        m.name as name,
+        m.path as path,
+        m.parent_id as parentId,
+        m.code as code,
+        m.order_num as orderNum,
+        m.remarks as remarks,
+        m.status as status,
+        m.create_user as createUser,
+        date_format(m.create_date,'%Y-%m-%d %H:%i:%s') as createDate,
+        m.update_user as updateUser,
+        date_format(m.update_date,'%Y-%m-%d %H:%i:%s') as updateDate
+        FROM t_sys_module m
+    </select>
+    <insert id="addResource" parameterType="com.igool.rpc.db.model.thrift.Resource">
+        INSERT into t_sys_module(name,path,parent_id,order_num,remarks,status,create_user,create_date)
+        VALUES (#{resource.name},#{resource.path},#{resource.parentId},#{resource.orderNumber},#{resource.remarks},
+        #{resource.status},#{resource.createUser},now())
+    </insert>
+    <select id="findResourceById" resultType="com.igool.rpc.db.model.thrift.Resource" parameterType="int">
+        SELECT m.module_id as moduleId,
+        m.name as name,
+        m.path as path,
+        m.parent_id as parentId,
+        m.code as code,
+        m.order_num as orderNumber,
+        m.remarks as remarks,
+        m.status as status,
+        m.create_user as createUser,
+        date_format(m.create_date,'%Y-%m-%d %H:%i:%s') as createDate,
+        m.update_user as updateUser,
+        date_format(m.update_date,'%Y-%m-%d %H:%i:%s') as updateDate
+        FROM t_sys_module m where m.module_id=#{id}
+    </select>
+    <update id="updateResource" parameterType="com.igool.rpc.db.model.thrift.Resource">
+        UPDATE t_sys_module m set name=#{resource.name},
+        path=#{resource.path},
+        order_num=#{resource.orderNumber},
+        remarks=#{resource.remarks},
+        status=#{resource.status},
+        update_user=#{resource.updateUser},
+        update_date=now()
+        where m.module_id=#{resource.moduleId}
+    </update>
+    <select id="getResourceIdsByRoleId" resultType="java.lang.Integer">
+        select resource_id from t_sys_roles_resource_rel
+        where roles_id=#{roleId}
+    </select>
+    <insert id="addRoleResource">
+        insert into t_sys_roles_resource_rel(roles_id,resource_id,type,create_user,create_date)
+        VALUES (#{roleId},#{resourceId},1,#{createUserId},now())
+    </insert>
+    <delete id="deleteRoleResource">
+        delete from t_sys_roles_resource_rel where roles_id=#{roleId} and resource_id=#{resourceId}
+    </delete>
+</mapper>

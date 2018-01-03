@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:rdb="http://www.dangdang.com/schema/ddframe/rdb"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                        http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/tx
+                        http://www.springframework.org/schema/tx/spring-tx.xsd
+                        http://www.springframework.org/schema/context
+                        http://www.springframework.org/schema/context/spring-context.xsd
+                        http://www.dangdang.com/schema/ddframe/rdb
+                        http://www.dangdang.com/schema/ddframe/rdb/rdb.xsd">
+    <!--<context:property-placeholder location="classpath:config.properties" ignore-unresolvable="true"/>
+    -->
+
+    <bean id="dataSourceParent" class="com.zaxxer.hikari.HikariDataSource" >
+        <property name="dataSourceProperties" >
+            <props>
+                <prop key="cachePrepStmts">${jdbc.cachePrepStmts}</prop>
+                <prop key="prepStmtCacheSize">${jdbc.prepStmtCacheSize}</prop>
+                <prop key="prepStmtCacheSqlLimit">${jdbc.prepStmtCacheSqlLimit}</prop>
+                <prop key="useServerPrepStmts">${jdbc.useServerPrepStmts}</prop>
+                <prop key="useLocalSessionState">${jdbc.useLocalSessionState}</prop>
+                <prop key="useLocalTransactionState">${jdbc.useLocalTransactionState}</prop>
+                <prop key="rewriteBatchedStatements">${jdbc.rewriteBatchedStatements}</prop>
+                <prop key="cacheResultSetMetadata">${jdbc.cacheResultSetMetadata}</prop>
+                <prop key="cacheServerConfiguration">${jdbc.cacheServerConfiguration}</prop>
+                <prop key="elideSetAutoCommits">${jdbc.elideSetAutoCommits}</prop>
+                <prop key="maintainTimeStats">${jdbc.maintainTimeStats}</prop>
+            </props>
+        </property>
+    </bean>
+    <bean id="dataSource0" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close"
+          p:driverClassName="${jdbc1.driverClassName}"
+          p:jdbcUrl="${jdbc1.url}"      p:username="${jdbc1.username}" p:password="${jdbc1.password}" parent="dataSourceParent">
+    </bean>
+
+    <bean id="dataSource1" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close"
+          p:driverClassName="${jdbc2.driverClassName}"
+          p:jdbcUrl="${jdbc2.url}"      p:username="${jdbc2.username}" p:password="${jdbc2.password}"  parent="dataSourceParent">
+    </bean>
+
+    <bean id="dataSource2" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close"
+          p:driverClassName="${jdbc3.driverClassName}"
+          p:jdbcUrl="${jdbc3.url}"      p:username="${jdbc3.username}" p:password="${jdbc3.password}"  parent="dataSourceParent">
+    </bean>
+
+    <bean id="dataSource3" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close"
+          p:driverClassName="${jdbc4.driverClassName}"
+          p:jdbcUrl="${jdbc4.url}"      p:username="${jdbc4.username}" p:password="${jdbc4.password}"  parent="dataSourceParent">
+    </bean>
+
+    <bean id="dataSource4" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close"
+          p:driverClassName="${jdbc5.driverClassName}"
+          p:jdbcUrl="${jdbc5.url}"      p:username="${jdbc5.username}" p:password="${jdbc5.password}"  parent="dataSourceParent">
+    </bean>
+
+    <bean id="dataSource5" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close"
+          p:driverClassName="${jdbc6.driverClassName}"
+          p:jdbcUrl="${jdbc6.url}"      p:username="${jdbc6.username}" p:password="${jdbc6.password}"  parent="dataSourceParent">
+    </bean>
+
+    <bean id="dataSource6" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close"
+          p:driverClassName="${jdbc7.driverClassName}"
+          p:jdbcUrl="${jdbc7.url}"      p:username="${jdbc7.username}" p:password="${jdbc7.password}"  parent="dataSourceParent">
+    </bean>
+    <bean id="dataSource7" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close"
+          p:driverClassName="${jdbc8.driverClassName}"
+          p:jdbcUrl="${jdbc8.url}"      p:username="${jdbc8.username}" p:password="${jdbc8.password}"  parent="dataSourceParent">
+    </bean>
+
+    <bean id="dataSource" class="com.igool.dzda.util.DynamicDataSource">
+        <property name="targetDataSources">
+            <map key-type="java.lang.String">
+                <entry value-ref="dataSource0" key="0"></entry>
+                <entry value-ref="dataSource1" key="1"></entry>
+                <entry value-ref="dataSource2" key="2"></entry>
+                <entry value-ref="dataSource3" key="3"></entry>
+                <entry value-ref="dataSource4" key="4"></entry>
+                <entry value-ref="dataSource5" key="5"></entry>
+                <entry value-ref="dataSource6" key="6"></entry>
+                <entry value-ref="dataSource7" key="7"></entry>
+            </map>
+        </property>
+        <property name="defaultTargetDataSource" ref="dataSource0" ></property>
+    </bean>
+
+
+    <!-- 配置session工厂 -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"></property>
+        <property name="typeAliasesPackage"
+                  value="com.igool.dzda.model"/>
+        <property name="mapperLocations">
+            <value>classpath:com/igool/dzda/mapper/*.xml</value>
+        </property>
+    </bean>
+
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+
+    <bean  class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.igool.dzda.mapper"/>
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+    </bean>
+
+</beans>

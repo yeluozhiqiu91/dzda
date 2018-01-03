@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+	<property name="log.context.name" value="dzda-web" />
+	<property name="log.charset" value="UTF-8" />
+	<property name="logback.level" value="debug" />
+	<property name="log.pattern" value="[%-5level] %date --%thread-- [%logger] %msg %n" />
+	<contextName>${log.context.name}</contextName>
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger{60} - %msg%n
+			</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="dzdaLogFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<Encoding>${log.charset}</Encoding>
+		<file>/home/yitop/dzdanew/logs/java/${log.context.name}/web.log</file>
+		<prudent>true</prudent>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>/home/yitop/dzdanew/logs/java/${log.context.name}/web.log.%d{yyyyMMdd}
+			</fileNamePattern>
+		</rollingPolicy>
+		<layout>
+			<pattern>${log.pattern}</pattern>
+		</layout>
+	</appender>
+	<logger name="org.apache.http.wire">
+		<level value="INFO" />
+	</logger>
+	<logger name="com.yitop">
+		<level value="${logback.level}" />
+		<appender-ref ref="dzdaLogFile" />
+	</logger>
+	<root level="${logback.level}">
+		<appender-ref ref="dzdaLogFile" />
+		<appender-ref ref="STDOUT"/>
+	</root>
+</configuration>

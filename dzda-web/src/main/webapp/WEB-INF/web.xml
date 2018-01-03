@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+		  http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+	version="3.0" id="pisces">
+
+	<display-name>example</display-name>
+
+	<absolute-ordering>
+		<name>pisces_webfragment</name>
+	</absolute-ordering>
+
+
+
+
+
+	<jsp-config>
+		<taglib>
+			<!-- 配置标签的引用地址 JSP页面中引用时使用-->
+			<taglib-uri>mobai.com/el-common</taglib-uri>
+			<!-- 配置标签的TLD文件地址 -->
+			<taglib-location>/WEB-INF/mobai-el-common.tld</taglib-location>
+		</taglib>
+	</jsp-config>
+
+	<servlet>
+		<servlet-name>Kaptcha</servlet-name>
+		<servlet-class>com.google.code.kaptcha.servlet.KaptchaServlet</servlet-class>
+		<init-param>
+			<param-name>kaptcha.border</param-name>    <!-- 是否有边框 -->
+			<param-value>no</param-value>
+		</init-param>
+		<init-param>
+			<param-name>kaptcha.textproducer.char.space</param-name>   <!--字符之间的间距 -->
+			<param-value>9</param-value>
+		</init-param>
+		<init-param>
+			<param-name>kaptcha.textproducer.char.length</param-name>   <!-- 字符的个数 -->
+			<param-value>4</param-value>
+		</init-param>
+		<init-param>
+			<param-name>kaptcha.image.width</param-name> <!-- 图片宽度 -->
+			<param-value>150</param-value>
+		</init-param>
+		<init-param>
+			<param-name>kaptcha.image.height</param-name><!-- 图片高度 -->
+			<param-value>50</param-value>
+		</init-param>
+		<init-param>
+			<param-name>kaptcha.textproducer.font.size</param-name>
+			<param-value>40</param-value>
+		</init-param>
+		<init-param>
+			<param-name>kaptcha.textproducer.font.color</param-name><!--蓝色-->
+			<param-value>blue</param-value>
+		</init-param>
+		<init-param>
+			<param-name>kaptcha.noise.impl</param-name>
+			<param-value>com.google.code.kaptcha.impl.NoNoise</param-value>
+		</init-param>
+		<init-param>			               
+			<param-name>kaptcha.obscurificator.impl</param-name>			                
+			<param-value>com.google.code.kaptcha.impl.WaterRipple</param-value>		<!--水纹效果-->	        
+		</init-param>
+	</servlet>
+	<!-- 设置拦截路径，只拦截 /Kaptcha.jpg -->
+	<servlet-mapping>
+		<servlet-name>Kaptcha</servlet-name>
+		<url-pattern>/Kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+
+
+	<filter>
+		<filter-name>springSessionRepositoryFilter</filter-name>
+		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>springSessionRepositoryFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+</web-app>

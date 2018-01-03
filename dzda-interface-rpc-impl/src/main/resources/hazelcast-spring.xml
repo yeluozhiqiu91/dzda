@@ -1,0 +1,27 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:hz="http://www.hazelcast.com/schema/spring"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                http://www.hazelcast.com/schema/spring
+                http://www.hazelcast.com/schema/spring/hazelcast-spring.xsd">
+    <!--powfull cache -->
+    <hz:hazelcast id="instance">
+        <hz:config>
+            <hz:network port="5701">
+                <hz:join>
+                    <hz:multicast enabled="true" />
+                </hz:join>
+            </hz:network>
+            <hz:queue name="queue" max-size="${common.queue.size}"/>
+            <!--  <hz:queue
+                name="chargequeue" max-size="${charge.queue.size}"/> -->
+            <hz:services enable-defaults="true">
+                <hz:service enabled="true">
+                    <hz:name>noctarius::SequencerService</hz:name>
+                    <hz:class-name>com.noctarius.snowcast.impl.NodeSequencerService
+                    </hz:class-name>
+                </hz:service>
+            </hz:services>
+        </hz:config>
+    </hz:hazelcast>
+</beans>

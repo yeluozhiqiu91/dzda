@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+				http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+				http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+				http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+	<import resource="config.xml"/>
+	<import resource="hazelcast-spring.xml"/>
+	<import resource="file-spring.xml"/>
+	<context:component-scan base-package="com.igool"></context:component-scan>
+
+	<!-- zookeeper -->
+	<bean id="thriftZookeeper" class="com.igool.thrift.rpc.zookeeper.ZookeeperFactory"
+		destroy-method="close">
+		<property name="zkHosts"
+			value="${zk.hostaddress}" />
+		<property name="namespace" value="com.igool.thrift.rpc" />
+		<property name="connectionTimeout" value="3000" />
+		<property name="sessionTimeout" value="3000" />
+		<property name="singleton" value="true" />
+	</bean>
+	<bean id="sericeAddressRegister"
+		class="com.igool.thrift.rpc.zookeeper.ThriftServerAddressRegisterZookeeper"
+		destroy-method="close">
+		<property name="zkClient" ref="thriftZookeeper" />
+	</bean>
+	<!--分布式队列-->
+	<bean id="distributeQueueServiceImpl" class="com.igool.queue.service.thrift.impl.DistributeQueueServiceImpl" />
+	<!--文件存储 -->
+	<bean id="fileSerivceImpl" class="com.igool.file.service.thrift.impl.FileServiceImpl" >
+	</bean>
+	<!--ID服务-->
+	<bean id="IdGenerateServiceImp" class="com.igool.id.service.thrift.impl.IdGenerateServiceImpl" >
+	</bean>
+
+	<bean id="helloService" class="com.igool.thrift.rpc.ThriftServiceServerFactory"
+		destroy-method="close">
+		<!--<property name="service" ref="helloSerivceImpl" />-->
+		<property name="objectList">
+			<list>
+				<ref bean="distributeQueueServiceImpl"></ref>
+				<ref bean="fileSerivceImpl"></ref>
+				<ref bean="IdGenerateServiceImp"></ref>
+			</list>
+		</property>
+		<property name="port" value="${service.port}" />
+		<property name="version" value="1.0.0" />
+		<property name="weight" value="1" />
+		<property name="thriftServerAddressRegister" ref="sericeAddressRegister" />
+	</bean>
+
+</beans>

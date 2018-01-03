@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2010-2013 the original author or authors. Licensed under the
+	Apache License, Version 2.0 (the "License"); you may not use this file except
+	in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+	Unless required by applicable law or agreed to in writing, software distributed
+	under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+	OR CONDITIONS OF ANY KIND, either express or implied. See the License for
+	the specific language governing permissions and limitations under the License. -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.igool.rpc.db.mysql.mapper.ImageInfoMapper">
+    <resultMap id="imageInfoMap" type="com.igool.rpc.db.model.thrift.ImageInfo">
+    </resultMap>
+    <select id="findImageInfoByLshAndBusinessTypeId" resultType="com.igool.rpc.db.model.thrift.ImageInfo">
+        select image_id as imageId,
+        code as code,
+        status as code,
+        date_format(application_date,'%Y-%m-%d %H:%i:%s') as applicationDate,
+        business_type_info_id as businessTypeInfoId,
+        version as version,
+        node as node,
+        image_user as imageUser,
+        date_format(image_date,'%Y-%m-%d %H:%i:%s') as imageDate
+        from t_da_image_info
+        where code=#{lsh} and business_type_info_id=#{businessTypeId} limit 1
+    </select>
+    <select id="findImageInfoByLsh" resultType="com.igool.rpc.db.model.thrift.ImageInfo">
+        select image_id as imageId,
+        code as code,
+        status as code,
+        date_format(application_date,'%Y-%m-%d %H:%i:%s') as applicationDate,
+        business_type_info_id as businessTypeInfoId,
+        version as version,
+        node as node,
+        image_user as imageUser,
+        date_format(image_date,'%Y-%m-%d %H:%i:%s') as imageDate
+        from t_da_image_info
+        where code=#{lsh} limit 1
+    </select>
+    <select id="findAllImageInfoByLshs" resultMap="imageInfoMap">
+        select image_id as imageId,
+        code as code,
+        status as code,
+        date_format(application_date,'%Y-%m-%d %H:%i:%s') as applicationDate,
+        business_type_info_id as businessTypeInfoId,
+        version as version,
+        node as node,
+        image_user as imageUser,
+        date_format(image_date,'%Y-%m-%d %H:%i:%s') as imageDate
+        from t_da_image_info
+        where code in ${lshs}
+    </select>
+    <insert id="addImageInfo" parameterType="com.igool.rpc.db.model.thrift.ImageInfo"
+            useGeneratedKeys="true" keyColumn="image_id" keyProperty="imageInfo.imageId">
+        insert into t_da_image_info(code,status,application_date,business_type_info_id,version,image_user,image_date)
+        VALUES (#{imageInfo.code},#{imageInfo.status},#{imageInfo.applicationDate},#{imageInfo.businessTypeInfoId},
+        #{imageInfo.version},#{imageInfo.imageUser},#{imageInfo.imageDate})
+    </insert>
+    <update id="updataImageInfo" parameterType="com.igool.rpc.db.model.thrift.ImageInfo">
+        UPDATE t_da_image_info set image_user=#{imageInfo.imageUser},image_date=#{imageInfo.imageDate},status=#{imageInfo.status}
+        where image_id=#{imageInfo.imageId}
+    </update>
+
+    <select id="findDriverImageCountByDate" resultType="int">
+        select count(*) from (
+        select distinct(car_number) from t_da_business_info where code in
+        (select code from t_da_image_info where 1=1
+        <if test="startTime != null and startTime != ''">
+            and application_date &gt;= str_to_date(#{startTime},'%Y-%m-%d %T')
+        </if>
+        <if test="endTime != null and endTime != ''">
+            and application_date &lt;= str_to_date(#{endTime},'%Y-%m-%d %T')
+        </if>
+        )
+        ) a      ;
+    </select>
+
+    <select id="findBusinessImageCount" resultType="java.util.HashMap">
+        select b.name as name,count(a.business_type_info_id) as count
+        from (select business_type_info_id  from t_da_image_info where 1=1
+        <if test="startTime != null and startTime != ''">
+            and application_date &gt;= str_to_date(#{startTime},'%Y-%m-%d %T')
+        </if>
+        <if test="endTime != null and endTime != ''">
+            and application_date &lt;= str_to_date(#{endTime},'%Y-%m-%d %T')
+        </if>
+        ) a
+        left join t_da_business_type_info b
+        on a.business_type_info_id=b.business_type_id
+        group by b.name
+    </select>
+
+    <select id="streamNumByDate" resultType="com.igool.rpc.db.model.thrift.ImageInfo">
+        select code,date_format(application_date,'%Y-%m-%d %H:%i:%s') as applicationDate,business_type_info_id as businessTypeInfoId,
+        image_user as imageUser,date_format(image_date,'%Y-%m-%d %H:%i:%s') as imageDate
+        from t_da_image_info
+        where 1=1
+        <if test="startTime != null and startTime != ''">
+            and application_date &gt;= str_to_date(#{startTime},'%Y-%m-%d %T')
+        </if>
+        <if test="endTime != null and endTime != ''">
+            and application_date &lt;= str_to_date(#{endTime},'%Y-%m-%d %T')
+        </if>
+    </select>
+
+    <select id="findImageCodeByDate" resultType="com.igool.rpc.db.model.thrift.ImageInfo">
+        select code,image_user as imageUser from t_da_image_info
+        where 1=1
+        <if test="startTime != null and startTime != ''">
+            and application_date &gt;= str_to_date(#{startTime},'%Y-%m-%d %T')
+        </if>
+        <if test="endTime != null and endTime != ''">
+            and application_date &lt;= str_to_date(#{endTime},'%Y-%m-%d %T')
+        </if>
+    </select>
+
+    <select id="userImageCountDriverNum" resultType="com.igool.rpc.db.model.thrift.UserImageCount">
+        select a2.image_user as userId,count(distinct a1.car_number) as driverNum from t_da_business_info a1,
+        (select code,image_user from t_da_image_info where 1=1
+        <if test="startTime != null and startTime != ''">
+            and application_date &gt;= str_to_date(#{startTime},'%Y-%m-%d %T')
+        </if>
+        <if test="endTime != null and endTime != ''">
+            and application_date &lt;= str_to_date(#{endTime},'%Y-%m-%d %T')
+        </if>
+        ) a2
+        where a1.code=a2.code
+        group by a2.image_user
+    </select>
+
+    <select id="userImageCountBusinessNum" resultType="com.igool.rpc.db.model.thrift.UserImageCount">
+        select a2.user_id as userId,a2.account as imageUser,a2.name as imageUserName,count(a2.user_id) as businessNum
+        from
+        (select image_user from t_da_image_info where 1=1
+        <if test="startTime != null and startTime != ''">
+            and application_date &gt;= str_to_date(#{startTime},'%Y-%m-%d %T')
+        </if>
+        <if test="endTime != null and endTime != ''">
+            and application_date &lt;= str_to_date(#{endTime},'%Y-%m-%d %T')
+        </if>
+        ) a1 left join t_sys_user_info a2
+        on a1.image_user=a2.user_id
+        group by a2.user_id,a2.account,a2.name
+    </select>
+
+    <select id="businessNumDetailByDateAndUserId" resultType="com.igool.rpc.db.model.thrift.ImageInfo">
+        select a1.code as code,date_format(a1.application_date,'%Y-%m-%d %H:%i:%s') as applicationDate,a3.file_code as fileCode,a2.name as
+        businessTypeInfoName from
+        (
+        select code,application_date,business_type_info_id,image_user from t_da_image_info
+        where image_user=#{userId}
+        <if test="startTime != null and startTime != ''">
+            and application_date &gt;= str_to_date(#{startTime},'%Y-%m-%d %T')
+        </if>
+        <if test="endTime != null and endTime != ''">
+            and application_date &lt;= str_to_date(#{endTime},'%Y-%m-%d %T')
+        </if>
+        ) a1,t_da_business_type_info a2,t_da_business_info a3
+        where a1.business_type_info_id=a2.business_type_id and a1.code=a3.code
+    </select>
+
+
+    <select id="findImageCodeByDateAndUserId" resultType="com.igool.rpc.db.model.thrift.ImageInfo">
+        select code from t_da_image_info
+        where image_user=#{userId}
+        <if test="startTime != null and startTime != ''">
+            and application_date &gt;= str_to_date(#{startTime},'%Y-%m-%d %T')
+        </if>
+        <if test="endTime != null and endTime != ''">
+            and application_date &lt;= str_to_date(#{endTime},'%Y-%m-%d %T')
+        </if>
+    </select>
+
+
+    <select id="findImageIdIsMinAndMaxByDate" resultType="com.igool.rpc.db.model.thrift.MinAndMaxId">
+        select min(image_id) as minId,max(image_id) as maxId from t_da_image_info where
+        application_date &gt;= date_format(#{startTime}, '%Y-%m-%d %T')
+        and application_date &lt;= date_format(#{endTime}, '%Y-%m-%d %T')
+    </select>
+
+
+    <select id="findImagePhotoNumByDate" resultType="string">
+        select sum(count) from count_image_photo where
+        1=1
+        <if test="startTime != null and startTime != ''">
+            and date_time &gt;= date_format(#{startTime}, '%Y-%m-%d')
+        </if>
+        <if test="endTime != null and endTime != ''">
+            and date_time &lt;= date_format(#{endTime}, '%Y-%m-%d')
+        </if>
+    </select>
+
+    <select id="getImageInfoListByCode" resultMap="imageInfoMap">
+        SELECT i.image_id AS imageId,
+        i.code AS code,
+        i.status AS status,
+        date_format(i.application_date,'%Y-%m-%d %H:%i:%s') as applicationDate,
+        i.business_type_info_id AS businessTypeId,
+        i.node AS node,
+        date_format(i.image_date,'%Y-%m-%d %H:%i:%s') as imageDate,
+        i.image_user as imageUser
+        FROM t_da_image_info i
+        WHERE i.code in
+        <foreach collection="codeList" item="code" open="(" separator="," close=")">
+            #{code}
+        </foreach>
+    </select>
+
+    <select id="getImageInfoListCountByCode" resultType="long" >
+        SELECT count(i.image_id)
+        FROM t_da_image_info i
+        WHERE i.code in
+        <foreach collection="codeList" item="code" open="(" separator="," close=")">
+            #{code}
+        </foreach>
+    </select>
+</mapper>

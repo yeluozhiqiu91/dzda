@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2010-2013 the original author or authors. Licensed under the
+	Apache License, Version 2.0 (the "License"); you may not use this file except
+	in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+	Unless required by applicable law or agreed to in writing, software distributed
+	under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+	OR CONDITIONS OF ANY KIND, either express or implied. See the License for
+	the specific language governing permissions and limitations under the License. -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.igool.rpc.db.mysql.mapper.FileInfoMapper">
+
+    <resultMap id="fileIdMap" type="com.igool.rpc.db.model.thrift.FileId">
+
+    </resultMap>
+    <insert id="addFileInfo" parameterType="com.igool.rpc.db.model.thrift.FileInfo" useGeneratedKeys="true" keyColumn="file_id" keyProperty="fileId">
+          insert into t_da_file_info(file_code,car_code,hpzl,hphm,status,ck_status,car_number)
+          VALUES
+          <foreach collection="list" item="fileInfo" separator=",">
+              (#{fileInfo.fileCode},#{fileInfo.carCode},#{fileInfo.hpzl},#{fileInfo.hphm},#{fileInfo.status},#{fileInfo.ckStatus},#{fileInfo.carNumber})
+          </foreach>
+    </insert>
+
+    <select id="findFileInfos" parameterType="com.igool.rpc.db.model.thrift.FileInfo"
+            resultType="com.igool.rpc.db.model.thrift.FileInfo">
+        select file_id as fileId,file_code as fileCode from t_da_file_info where file_code in
+        <foreach collection="fileInfos" item="fileInfo" open="(" close=")" separator=",">
+            #{fileInfo.fileCode}
+        </foreach>
+    </select>
+
+    <select id="findFileInfoByFileCode" resultType="com.igool.rpc.db.model.thrift.FileInfo">
+
+        select file_id as fileId,file_code as fileCode,car_code as carCode,hpzl as hpzl,hphm as hphm,status as status,car_number as carNumber from t_da_file_info
+        where file_code=#{fileCode} limit 1
+
+    </select>
+
+    <update id="updateStatus">
+        update t_da_file_info set status=#{status} where file_id=#{fileId}
+    </update>
+
+    <insert id="addFile" parameterType="com.igool.rpc.db.model.thrift.FileInfo" useGeneratedKeys="true" keyColumn="file_id" keyProperty="fileInfo.fileId">
+        INSERT into t_da_file_info(file_code,car_code,hpzl,hphm,status,ck_status,car_number)
+        VALUES(#{fileInfo.fileCode},#{fileInfo.carCode},#{fileInfo.hpzl},#{fileInfo.hphm},#{fileInfo.status},#{fileInfo.ckStatus},#{fileInfo.carNumber})
+    </insert>
+    <select id="findAllFileIdsByCkStatus" resultMap="fileIdMap">
+        select file_id as fileId from t_da_file_info where ck_status=#{ckStatus}
+    </select>
+    <select id="findAllForFileCode" resultMap="fileIdMap">
+        select file_id as fileId,file_code as fileCode from t_da_file_info
+    </select>
+    <select id="findAllForBox" resultMap="fileIdMap">
+        /*select rel.file_id as fileId,s.box as box from t_da_signing_rel rel,
+        t_da_signing s where s.signing_id=rel.signing_id and s.box is not null*/
+        select group_concat(file_id) as fileIds,box as box from file_box group by box
+    </select>
+    <select id="findAllForFileCodeCount" resultType="int">
+        select count(*) from t_da_file_info
+    </select>
+    <select id="findAllForBoxCount">
+        select count(*) from (select count(*) from file_box group by box) as a
+    </select>
+    <select id="findForFileCode" resultMap="fileIdMap">
+        select file_id as fileId,file_code as fileCode from t_da_file_info order by fileId limit #{startIndex},#{pageSize}
+    </select>
+</mapper>

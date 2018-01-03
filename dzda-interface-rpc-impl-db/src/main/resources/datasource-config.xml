@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Application context definition for PetClinic Datasource.
+-->
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+         http://www.springframework.org/schema/beans/spring-beans.xsd
+         http://www.springframework.org/schema/context
+         http://www.springframework.org/schema/context/spring-context.xsd
+         http://www.springframework.org/schema/jdbc
+         http://www.springframework.org/schema/jdbc/spring-jdbc.xsd">
+
+    <!-- ========================= DATASOURCE DEFINITION ========================= -->
+
+    <!-- Configurer that replaces ${...} placeholders with values from a properties file -->
+    <!-- (in this case, JDBC-related settings for the dataSource definition below) -->
+    <!-- DataSource configuration for Apache Commons DBCP. -->
+  <!--  <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close"
+          p:dataSourceClassName="oracle.jdbc.pool.OracleDataSource"
+          p:jdbcUrl="${jdbc.url}"      p:username="${jdbc.username}" p:password="${jdbc.password}">
+        <property name="dataSourceProperties">
+            <props>
+                &lt;!&ndash;<prop key="cachePrepStmts">${jdbc.cachePrepStmts}</prop>&ndash;&gt;
+               &lt;!&ndash; <prop key="prepStmtCacheSize">${jdbc.prepStmtCacheSize}</prop>&ndash;&gt;
+                &lt;!&ndash;<prop key="prepStmtCacheSqlLimit">${jdbc.prepStmtCacheSqlLimit}</prop>&ndash;&gt;
+                &lt;!&ndash;<prop key="useServerPrepStmts">${jdbc.useServerPrepStmts}</prop>&ndash;&gt;
+               &lt;!&ndash; <prop key="useLocalSessionState">${jdbc.useLocalSessionState}</prop>&ndash;&gt;
+               &lt;!&ndash; <prop key="useLocalTransactionState">${jdbc.useLocalTransactionState}</prop>&ndash;&gt;
+               &lt;!&ndash; <prop key="rewriteBatchedStatements">${jdbc.rewriteBatchedStatements}</prop>&ndash;&gt;
+                &lt;!&ndash;<prop key="cacheResultSetMetadata">${jdbc.cacheResultSetMetadata}</prop>&ndash;&gt;
+               &lt;!&ndash; <prop key="cacheServerConfiguration">${jdbc.cacheServerConfiguration}</prop>&ndash;&gt;
+               &lt;!&ndash; <prop key="elideSetAutoCommits">${jdbc.elideSetAutoCommits}</prop>&ndash;&gt;
+                &lt;!&ndash;<prop key="maintainTimeStats">${jdbc.maintainTimeStats}</prop>&ndash;&gt;
+                <prop key="driverType" >thin</prop>
+                <prop key="portNumber" >1521</prop>
+                <prop key="user" >${jdbc.username}</prop>
+                <prop key="password" >${jdbc.password}</prop>
+                <prop key="url" >${jdbc.url}</prop>
+&lt;!&ndash;                <prop key="databaseName">orcl</prop>
+                <prop key="serviceName">220.202.15.34</prop>&ndash;&gt;
+
+            </props>
+        </property>
+        <property name="connectionTestQuery" value="SELECT 1 FROM DUAL"></property>
+    </bean>-->
+    <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close"
+          p:driverClassName="${jdbc.driverClassName}"
+          p:jdbcUrl="${jdbc.url}"      p:username="${jdbc.username}" p:password="${jdbc.password}">
+        <property name="dataSourceProperties">
+            <props>
+                <prop key="cachePrepStmts">${jdbc.cachePrepStmts}</prop>
+                <prop key="prepStmtCacheSize">${jdbc.prepStmtCacheSize}</prop>
+                <prop key="prepStmtCacheSqlLimit">${jdbc.prepStmtCacheSqlLimit}</prop>
+                <prop key="useServerPrepStmts">${jdbc.useServerPrepStmts}</prop>
+                <prop key="useLocalSessionState">${jdbc.useLocalSessionState}</prop>
+                <prop key="useLocalTransactionState">${jdbc.useLocalTransactionState}</prop>
+                <prop key="rewriteBatchedStatements">${jdbc.rewriteBatchedStatements}</prop>
+                <prop key="cacheResultSetMetadata">${jdbc.cacheResultSetMetadata}</prop>
+                <prop key="cacheServerConfiguration">${jdbc.cacheServerConfiguration}</prop>
+                <prop key="elideSetAutoCommits">${jdbc.elideSetAutoCommits}</prop>
+                <prop key="maintainTimeStats">${jdbc.maintainTimeStats}</prop>
+            </props>
+        </property>
+    </bean>
+    <!-- 配置session工厂 -->
+    <bean id="sqlSessionFactoryMysql" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"></property>
+        <property name="typeAliasesPackage"
+                  value="com.igool.rpc.db.model.thrift"/>
+        <property name="mapperLocations">
+            <value>classpath:com/igool/common/mysql/mapper/*Mapper.xml</value>
+        </property>
+        <property name="plugins">
+            <list>
+                <ref bean="paginationInterceptor" />
+            </list>
+        </property>
+    </bean>
+    <bean id="transactionManagerMysql" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.igool.rpc.db.mysql.mapper"/>
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryMysql"/>
+    </bean>
+    <!--分库数据源 开始-->
+    <import resource="shared-datasource-config.xml"/>
+    <!--分库数据源 结束-->
+
+    <!-- JNDI DataSource for JEE environments -->
+
+    <!-- 分页插件 -->
+    <!-- pagination interceptor -->
+    <bean name="paginationInterceptor" class="com.igool.util.PaginationInterceptor"></bean>
+    <!-- 配置session工厂 -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="shardingDataSource"></property>
+        <property name="typeAliasesPackage"
+                  value="com.igool.rpc.db.model.thrift" />
+        <property name="mapperLocations">
+            <value>classpath:com/igool/common/mapper/*Mapper.xml</value>
+        </property>
+        <property name="plugins">
+            <list>
+                <ref bean="paginationInterceptor" />
+            </list>
+        </property>
+    </bean>
+    <bean id="mapperScannerConfigurer" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.igool.rpc.db.mapper" />
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+    </bean>
+    <!-- 配置事务 -->
+    <bean id="transactionManager"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="shardingDataSource" />
+    </bean>
+
+    <!--**************************************  oracle  *********************************************-->
+    <bean id="dataSourceOrcl" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close"
+          p:dataSourceClassName="oracle.jdbc.pool.OracleDataSource"
+          p:jdbcUrl="${db.url}" p:username="${db.username}" p:password="${db.password}">
+        <property name="dataSourceProperties">
+            <props>
+                <prop key="driverType" >thin</prop>
+                <prop key="portNumber" >${db.oracle.port}</prop>
+                <prop key="user" >${db.username}</prop>
+                <prop key="password" >${db.password}</prop>
+                <prop key="url" >${db.url}</prop>
+            </props>
+        </property>
+        <property name="connectionTestQuery" value="SELECT 1 FROM DUAL"></property>
+    </bean>
+
+    <!-- 配置session工厂 -->
+    <bean id="sqlSessionFactoryOrcl" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSourceOrcl"></property>
+        <property name="typeAliasesPackage"
+                  value="com.igool.rpc.db.model.thrift" />
+        <property name="mapperLocations">
+            <value>classpath:com/igool/common/oracle/mapper/*Mapper.xml</value>
+        </property>
+    </bean>
+    <bean id="transactionManagerOrcl" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSourceOrcl"/>
+    </bean>
+
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.igool.rpc.db.oracle.mapper"/>
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryOrcl"/>
+    </bean>
+</beans>

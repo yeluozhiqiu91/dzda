@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.igool.rpc.db.oracle.mapper.SynchroLibraryMapper">
+
+    <resultMap id="vehFlowMap" type="com.igool.rpc.db.model.thrift.VehicleFlow">
+
+    </resultMap>
+    <select id="getSynchroLibraryVehFlow" resultType="com.igool.rpc.db.model.thrift.BusinessInfo">
+        select a1.lsh as code,a1.ywlx as businessType,a1.sqrq as applicationDate,a2.hpzl as plateType,
+                a2.hphm as plateCode, a2.clsbdh as carCode,a2.dabh as fileCode,a2.xh as carNumber,a1.lszt as lsStatus from
+        (select lsh,ywlx,sqrq,xh,lszt from VEH_FLOW  where  lsh=#{lsh}) a1,
+        (select xh,hpzl,hphm,clsbdh,dabh from VEHICLE) a2
+        where a1.xh=a2.xh
+    </select>
+
+    <select id="getSynchroLibraryVehFlowHis" resultType="com.igool.rpc.db.model.thrift.BusinessInfo">
+        select a1.lsh as code,a1.ywlx as businessType,a1.sqrq as applicationDate,a2.hpzl as plateType,
+                a2.hphm as plateCode, a2.clsbdh as carCode,a2.dabh as fileCode,a2.xh as carNumber,a1.lszt as lsStatus from
+        (select lsh,xh,ywlx,sqrq,lszt from VEH_FLOW_HIS  where  lsh=#{lsh}) a1,
+        (select xh,hpzl,hphm,clsbdh,dabh from VEHICLE) a2
+        where a1.xh=a2.xh
+    </select>
+
+    <select id="findLsByDabh" resultMap="vehFlowMap">
+        select hpzl,hphm,ywlx,clsbdh,to_char(sqrq,'yyyy-MM-dd') as sqrq,lszt,xh,lsh from veh_flow where xh in (select xh from VEHICLE where dabh= #{dabh}) order by sqrq desc
+    </select>
+    <select id="findLsHisByDabh" resultMap="vehFlowMap">
+        select hpzl,hphm,ywlx,clsbdh,to_char(sqrq,'yyyy-MM-dd') as sqrq,lszt,xh,lsh from veh_flow_his where xh in (select xh from VEHICLE where dabh= #{dabh}) order by sqrq desc
+    </select>
+    <select id="findCarInfoBySfzAndName" resultType="com.igool.rpc.db.model.thrift.Vehicle">
+        select xh,hpzl,hphm,clsbdh,syr,ccdjrq,clpp1,sfzmhm  from VEHICLE
+        where  1=1
+        <if test="name != 'null' and name != ''">
+            and syr=#{name}
+        </if>
+        <if test="sfz != null and sfz != ''">
+            and sfzmhm=#{sfz}
+        </if>
+    </select>
+</mapper>

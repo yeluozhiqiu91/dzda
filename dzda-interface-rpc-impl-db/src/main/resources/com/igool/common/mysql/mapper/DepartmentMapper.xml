@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2010-2013 the original author or authors. Licensed under the
+	Apache License, Version 2.0 (the "License"); you may not use this file except
+	in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+	Unless required by applicable law or agreed to in writing, software distributed
+	under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+	OR CONDITIONS OF ANY KIND, either express or implied. See the License for
+	the specific language governing permissions and limitations under the License. -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.igool.rpc.db.mysql.mapper.DepartmentMapper">
+    <resultMap id="departmentMap" type="com.igool.rpc.db.model.thrift.Department">
+
+    </resultMap>
+    <select id="getDepartmentList" resultMap="departmentMap">
+        select department_id as departmentId,
+        name as name,
+        code as code,
+        parent_id as parentId,
+        sort as sort,
+        remarks as remarks,
+        create_user as createUser,
+        date_format(create_date,'%Y-%m-%d %H:%i:%s') as createDate,
+        status as status,
+        del_user as delUser,
+        date_format(del_date,'%Y-%m-%d %H:%i:%s') as delDate
+        from t_sys_department_info order by sort
+    </select>
+    <insert id="addDepartment" parameterType="com.igool.rpc.db.model.thrift.Department">
+        insert into t_sys_department_info (name,code,parent_id,sort,remarks,create_user,create_date,status)
+        values (#{name},#{code},#{parentId},#{sort},#{remarks},#{createUser},now(),#{status});
+    </insert>
+    <select id="findDepartmentById" resultType="com.igool.rpc.db.model.thrift.Department">
+        select department_id as departmentId,
+        name as name,
+        code as code,
+        parent_id as parentId,
+        sort as sort,
+        remarks as remarks,
+        create_user as createUser,
+        date_format(create_date,'%Y-%m-%d %H:%i:%s') as createDate,
+        status as status,
+        del_user as delUser,
+        date_format(del_date,'%Y-%m-%d %H:%i:%s') as delDate
+        from t_sys_department_info where department_id=#{departmentId}
+    </select>
+    <update id="updateDepartment" parameterType="com.igool.rpc.db.model.thrift.Department">
+        update t_sys_department_info
+        set name=#{name},
+        code=#{code},
+        parent_id=#{parentId},
+        sort=#{sort},
+        remarks=#{remarks},
+        status=#{status}
+        where department_id=#{departmentId}
+    </update>
+    <select id="getChildrenCount" resultType="int">
+        select count(*) from t_sys_department_info where
+        parent_id=#{departmentId}
+    </select>
+    <select id="getPersonCount" resultType="int">
+        select count(*) from t_sys_user_info where
+        department_id=#{departmentId}
+    </select>
+    <delete id="deleteDepartmentById">
+        delete from t_sys_department_info
+        where department_id=#{departmentId}
+    </delete>
+</mapper>

@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+				http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+				http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+				http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd"
+	default-lazy-init="false">
+	<!--db rpc -->
+	<bean id="thriftZookeeperDb" class="com.igool.thrift.rpc.zookeeper.ZookeeperFactory"
+		  destroy-method="close">
+		<property name="zkHosts"
+				  value="${zk.hostaddress}" />
+		<property name="namespace" value="com.igool.db.thrift.rpc" />
+		<property name="connectionTimeout" value="3000" />
+		<property name="sessionTimeout" value="3000" />
+		<property name="singleton" value="true" />
+	</bean>
+
+	<bean id ="testServerAddressProviderZookeeper" class="com.igool.thrift.rpc.zookeeper.ThriftServerAddressProviderZookeeper"
+		  p:service="com.igool.file.service.thrift.TestService" p:version="1.0.0" p:zkClient-ref="thriftZookeeperDb"
+	/>
+
+	<bean id="clientService" class="com.igool.thrift.rpc.ThriftClientProxy"
+		  p:serverAddressProvider-ref="testServerAddressProviderZookeeper"  p:clientManager-ref="thriftClientMan"
+	/>
+	<bean id="businessInfoService" class="com.igool.thrift.rpc.ThriftServiceClientProxyFactory" destroy-method="close">
+		<property name="serverAddressProvider">
+			<bean class="com.igool.thrift.rpc.zookeeper.ThriftServerAddressProviderZookeeper">
+				<property name="service" value="com.igool.rpc.db.service.thrift.BusinessInfoService" />
+				<property name="version" value="1.0.0" />
+				<property name="zkClient" ref="thriftZookeeperDb" />
+			</bean>
+		</property>
+		<property name="clientManager" ref="thriftClientMan"/>
+	</bean>
+	<bean id="businessTypeService" class="com.igool.thrift.rpc.ThriftServiceClientProxyFactory" destroy-method="close">
+		<property name="serverAddressProvider">
+			<bean class="com.igool.thrift.rpc.zookeeper.ThriftServerAddressProviderZookeeper">
+				<property name="service" value="com.igool.rpc.db.service.thrift.BusinessTypeService" />
+				<property name="version" value="1.0.0" />
+				<property name="zkClient" ref="thriftZookeeperDb" />
+			</bean>
+		</property>
+		<property name="clientManager" ref="thriftClientMan"/>
+	</bean>
+	<bean id="departmentService" class="com.igool.thrift.rpc.ThriftServiceClientProxyFactory" destroy-method="close">
+		<property name="serverAddressProvider">
+			<bean class="com.igool.thrift.rpc.zookeeper.ThriftServerAddressProviderZookeeper">
+				<property name="service" value="com.igool.rpc.db.service.thrift.DepartmentService" />
+				<property name="version" value="1.0.0" />
+				<property name="zkClient" ref="thriftZookeeperDb" />
+			</bean>
+		</property>
+		<property name="clientManager" ref="thriftClientMan"/>
+	</bean>
+	<bean id="fileInfoService" class="com.igool.thrift.rpc.ThriftServiceClientProxyFactory" destroy-method="close">
+		<property name="serverAddressProvider">
+			<bean class="com.igool.thrift.rpc.zookeeper.ThriftServerAddressProviderZookeeper">
+				<property name="service" value="com.igool.rpc.db.service.thrift.FileInfoService" />
+				<property name="version" value="1.0.0" />
+				<property name="zkClient" ref="thriftZookeeperDb" />
+			</bean>
+		</property>
+		<property name="clientManager" ref="thriftClientMan"/>
+	</bean>
+	<bean id="imageInfoService" class="com.igool.thrift.rpc.ThriftServiceClientProxyFactory" destroy-method="close">
+		<property name="serverAddressProvider">
+			<bean class="com.igool.thrift.rpc.zookeeper.ThriftServerAddressProviderZookeeper">
+				<property name="service" value="com.igool.rpc.db.service.thrift.ImageInfoService" />
+				<property name="version" value="1.0.0" />
+				<property name="zkClient" ref="thriftZookeeperDb" />
+			</bean>
+		</property>
+		<property name="clientManager" ref="thriftClientMan"/>
+	</bean>
+	<bean id="imagePhotoRelService" class="com.igool.thrift.rpc.ThriftServiceClientProxyFactory" destroy-method="close">
+		<property name="serverAddressProvider">
+			<bean class="com.igool.thrift.rpc.zookeeper.ThriftServerAddressProviderZookeeper">
+				<property name="service" value="com.igool.rpc.db.service.thrift.ImagePhotoRefService" />
+				<property name="version" value="1.0.0" />
+				<property name="zkClient" ref="thriftZookeeperDb" />
+			</bean>
+		</property>
+		<property name="clientManager" ref="thriftClientMan"/>
+	</bean>
+	<bean id="plateTypeService" class="com.igool.thrift.rpc.ThriftServiceClientProxyFactory" destroy-method="close">
+		<property name="serverAddressProvider">
+			<bean class="com.igool.thrift.rpc.zookeeper.ThriftServerAddressProviderZookeeper">
+				<property name="service" value="com.igool.rpc.db.service.thrift.PlateTypeService" />
+				<property name="version" value="1.0.0" />
+				<property name="zkClient" ref="thriftZookeeperDb" />
+			</bean>
+		</property>
+		<property name="clientManager" ref="thriftClientMan"/>
+	</bean>
+	<bean id="roleResourceService" class="com.igool.thrift.rpc.ThriftServiceClientProxyFactory" destroy-method="close">
+		<property name="serverAddressProvider">
+			<bean class="com.igool.thrift.rpc.zookeeper.ThriftServerAddressProviderZookeeper">
+				<property name="service" value="com.igool.rpc.db.service.thrift.RoleResourceService" />
+				<property name="version" value="1.0.0" />
+				<property name="zkClient" ref="thriftZookeeperDb" />
+			</bean>
+		</property>
+		<property name="clientManager" ref="thriftClientMan"/>
+	</bean>
+	<bean id="roleService" class="com.igool.thrift.rpc.ThriftServiceClientProxyFactory" destroy-method="close">
+		<property name="serverAddressProvider">
+			<bean class="com.igool.thrift.rpc.zookeeper.ThriftServerAddressProviderZookeeper">
+				<property name="service" value="com.igool.rpc.db.service.thrift.RoleService" />
+				<property name="version" value="1.0.0" />
+				<property name="zkClient" ref="thriftZookeeperDb" />
+			</bean>
+		</property>
+		<property name="clientManager" ref="thriftClientMan"/>
+	</bean>
+	<bean id="transferService" class="com.igool.thrift.rpc.ThriftServiceClientProxyFactory" destroy-method="close">
+		<property name="serverAddressProvider">
+			<bean class="com.igool.thrift.rpc.zookeeper.ThriftServerAddressProviderZookeeper">
+				<property name="service" value="com.igool.rpc.db.service.thrift.TransferService" />
+				<property name="version" value="1.0.0" />
+				<property name="zkClient" ref="thriftZookeeperDb" />
+			</bean>
+		</property>
+		<property name="clientManager" ref="thriftClientMan"/>
+	</bean>
+	<bean id="userInfoService" class="com.igool.thrift.rpc.ThriftServiceClientProxyFactory" destroy-method="close">
+		<property name="serverAddressProvider">
+			<bean class="com.igool.thrift.rpc.zookeeper.ThriftServerAddressProviderZookeeper">
+				<property name="service" value="com.igool.rpc.db.service.thrift.UserInfoService" />
+				<property name="version" value="1.0.0" />
+				<property name="zkClient" ref="thriftZookeeperDb" />
+			</bean>
+		</property>
+		<property name="clientManager" ref="thriftClientMan"/>
+	</bean>
+	<bean id="vehicleService" class="com.igool.thrift.rpc.ThriftServiceClientProxyFactory" destroy-method="close">
+		<property name="serverAddressProvider">
+			<bean class="com.igool.thrift.rpc.zookeeper.ThriftServerAddressProviderZookeeper">
+				<property name="service" value="com.igool.rpc.db.service.thrift.VehicleService" />
+				<property name="version" value="1.0.0" />
+				<property name="zkClient" ref="thriftZookeeperDb" />
+			</bean>
+		</property>
+		<property name="clientManager" ref="thriftClientMan"/>
+	</bean>
+	<bean id="dictionaryService" class="com.igool.thrift.rpc.ThriftServiceClientProxyFactory" destroy-method="close">
+		<property name="serverAddressProvider">
+			<bean class="com.igool.thrift.rpc.zookeeper.ThriftServerAddressProviderZookeeper">
+				<property name="service" value="com.igool.rpc.db.service.thrift.DictionaryService" />
+				<property name="version" value="1.0.0" />
+				<property name="zkClient" ref="thriftZookeeperDb" />
+			</bean>
+		</property>
+		<property name="clientManager" ref="thriftClientMan"/>
+	</bean>
+	<!--rpc-->
+
+	<bean id="thriftZookeeper" class="com.igool.thrift.rpc.zookeeper.ZookeeperFactory"
+		  destroy-method="close">
+		<property name="zkHosts"
+				  value="${zk.hostaddress}" />
+		<property name="namespace" value="com.igool.thrift.rpc" />
+		<property name="connectionTimeout" value="3000" />
+		<property name="sessionTimeout" value="3000" />
+		<property name="singleton" value="true" />
+	</bean>
+
+	<bean id="fileService" class="com.igool.thrift.rpc.ThriftServiceClientProxyFactory" destroy-method="close">
+		<property name="serverAddressProvider">
+			<bean class="com.igool.thrift.rpc.zookeeper.ThriftServerAddressProviderZookeeper">
+				<property name="service" value="com.igool.file.service.thrift.FileService" />
+				<property name="version" value="1.0.0" />
+				<property name="zkClient" ref="thriftZookeeper" />
+			</bean>
+		</property>
+		<property name="clientManager" ref="thriftClientMan"/>
+	</bean>
+
+	<!--<bean id="videoService" class="com.igool.thrift.rpc.ThriftServiceClientProxyFactory" destroy-method="close">
+		<property name="serverAddressProvider">
+			<bean class="com.igool.thrift.rpc.zookeeper.ThriftServerAddressProviderZookeeper">
+				<property name="service" value="com.igool.video.service.thrift.VideoService" />
+				<property name="version" value="1.0.0" />
+				<property name="zkClient" ref="thriftZookeeper" />
+			</bean>
+		</property>
+		<property name="clientManager" ref="thriftClientMan"/>
+	</bean>-->
+
+	<bean id="thriftClientMan" class="com.facebook.swift.service.ThriftClientManager"/>
+</beans>

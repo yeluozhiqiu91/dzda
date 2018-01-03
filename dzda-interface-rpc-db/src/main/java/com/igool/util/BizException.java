@@ -1,0 +1,39 @@
+package com.igool.util;
+
+import org.apache.thrift.TException;
+
+public class BizException extends TException {
+
+	private static final long serialVersionUID = -341081171520068462L;
+	
+	private String code;
+
+	public String getCode() {
+		return code;
+	}
+
+	public BizException(String code) {
+		super();
+		this.code = code;
+	}
+
+	public BizException(String code, String msg, Throwable e, boolean arg2, boolean arg3) {
+		super(msg, e);
+		this.code = code;
+	}
+
+	public BizException(String code, String msg, Throwable e) {
+		super(msg, e);
+		this.code = code;
+	}
+
+	public BizException(String code, String msg) {
+		super(msg);
+		this.code = code;
+	}
+
+	public BizException(String code, Throwable e) {
+		super(e);
+		this.code = code;
+	}
+}

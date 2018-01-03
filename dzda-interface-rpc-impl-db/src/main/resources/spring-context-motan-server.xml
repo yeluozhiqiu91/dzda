@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~  Copyright 2009-2016 Weibo, Inc.
+  ~
+  ~    Licensed under the Apache License, Version 2.0 (the "License");
+  ~    you may not use this file except in compliance with the License.
+  ~    You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    Unless required by applicable law or agreed to in writing, software
+  ~    distributed under the License is distributed on an "AS IS" BASIS,
+  ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~    See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:motan="http://api.weibo.com/schema/motan"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+	   http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+	   http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+       http://api.weibo.com/schema/motan http://api.weibo.com/schema/motan.xsd">
+	<import resource="config.xml"/>
+	<import resource="datasource-config.xml"/>
+	<import resource="redis.xml"/>
+	<context:component-scan base-package="com.igool"></context:component-scan>
+	<motan:annotation />
+	<!-- 业务具体实现类 -->
+	<bean id="imagePhotoRelService" class="com.igool.rpc.db.service.impl.ImagePhotoRelServiceImpl" />
+	<bean id="userInfoService" class="com.igool.rpc.db.service.impl.UserInfoServiceImpl"/>
+	<bean id="roleResourceService" class="com.igool.rpc.db.service.impl.RoleResourceServiceImpl"/>
+	<bean id="roleService" class="com.igool.rpc.db.service.impl.RoleServiceImpl"/>
+	<bean id="businessInfoService" class="com.igool.rpc.db.service.impl.BusinessInfoServiceImpl"/>
+	<bean id="plateTypeService" class="com.igool.rpc.db.service.impl.PlateTypeServiceImpl"/>
+	<bean id="businessTypeService" class="com.igool.rpc.db.service.impl.BusinessTypeServiceImpl"/>
+	<bean id="transferService" class="com.igool.rpc.db.service.impl.TransferServiceImpl"/>
+	<bean id="imageInfoService" class="com.igool.rpc.db.service.impl.ImageInfoServiceImpl"/>
+	<bean id="fileInfoService" class="com.igool.rpc.db.service.impl.FileInfoServiceImpl"/>
+	<bean id="departmentService" class="com.igool.rpc.db.service.impl.DepartmentServiceImpl"/>
+	<bean id="vehicleService" class="com.igool.rpc.db.service.impl.VehicleServiceImpl"/>
+	<bean id="dictionaryService" class="com.igool.rpc.db.service.impl.DictionaryServiceImpl"/>
+	<bean id="carInfoRegisterService" class="com.igool.rpc.db.service.impl.CarInfoRegisterServiceImpl"/>
+	<bean id="cacheService" class="com.igool.rpc.db.service.impl.CacheServiceImpl"/>
+	<bean id="statisticsService" class="com.igool.rpc.db.service.impl.StatisticsServiceImpl"/>
+	<!-- 注册中心配置 使用不同注册中心需要依赖对应的jar包。如果不使用注册中心，可以把check属性改为false，忽略注册失败。-->
+	<!-- <motan:registry regProtocol="local" name="registry" />-->
+	<!--<motan:registry regProtocol="consul" name="registry" address="127.0.0.1:8500"/>-->
+	<motan:registry regProtocol="zookeeper" name="registry" address="${zk.hostaddress}" connectTimeout="2000"/>
+
+	<!-- 协议配置。为防止多个业务配置冲突，推荐使用id表示具体协议。-->
+	<motan:protocol id="motanDBApi" default="true" name="motan"
+					maxServerConnection="80000" maxContentLength="5048576"
+					maxWorkerThread="800" minWorkerThread="20"/>
+
+	<!-- 通用配置，多个rpc服务使用相同的基础配置. group和module定义具体的服务池。export格式为“protocol id:提供服务的端口”-->
+	<motan:basicService export="motanDBApi:8007"
+						group="motan-rpc-db-sync" accessLog="false" shareChannel="true" module="motan-rpc-db-sync"
+						application="DbapiMotan" registry="registry" id="serviceBasicConfig"/>
+
+	<!-- 具体rpc服务配置，声明实现的接口类。-->
+	<motan:service interface="com.igool.rpc.db.service.thrift.ImagePhotoRefService"
+				   ref="imagePhotoRelService" export="motanDBApi:8007" basicService="serviceBasicConfig">
+	</motan:service>
+	<motan:service interface="com.igool.rpc.db.service.thrift.UserInfoService"
+				   ref="userInfoService" export="motanDBApi:8007" basicService="serviceBasicConfig">
+	</motan:service>
+	<motan:service interface="com.igool.rpc.db.service.thrift.RoleResourceService"
+				   ref="roleResourceService" export="motanDBApi:8007" basicService="serviceBasicConfig">
+	</motan:service>
+	<motan:service interface="com.igool.rpc.db.service.thrift.RoleService"
+				   ref="roleService" export="motanDBApi:8007" basicService="serviceBasicConfig">
+	</motan:service>
+	<motan:service interface="com.igool.rpc.db.service.thrift.BusinessInfoService"
+				   ref="businessInfoService" export="motanDBApi:8007" basicService="serviceBasicConfig">
+	</motan:service>
+	<motan:service interface="com.igool.rpc.db.service.thrift.PlateTypeService"
+				   ref="plateTypeService" export="motanDBApi:8007" basicService="serviceBasicConfig">
+	</motan:service>
+	<motan:service interface="com.igool.rpc.db.service.thrift.BusinessTypeService"
+				   ref="businessTypeService" export="motanDBApi:8007" basicService="serviceBasicConfig">
+	</motan:service>
+	<motan:service interface="com.igool.rpc.db.service.thrift.TransferService"
+				   ref="transferService" export="motanDBApi:8007" basicService="serviceBasicConfig">
+	</motan:service>
+	<motan:service interface="com.igool.rpc.db.service.thrift.ImageInfoService"
+				   ref="imageInfoService" export="motanDBApi:8007" basicService="serviceBasicConfig">
+	</motan:service>
+	<motan:service interface="com.igool.rpc.db.service.thrift.FileInfoService"
+				   ref="fileInfoService" export="motanDBApi:8007" basicService="serviceBasicConfig">
+	</motan:service>
+	<motan:service interface="com.igool.rpc.db.service.thrift.DepartmentService"
+				   ref="departmentService" export="motanDBApi:8007" basicService="serviceBasicConfig">
+	</motan:service>
+	<motan:service interface="com.igool.rpc.db.service.thrift.VehicleService"
+				   ref="vehicleService" export="motanDBApi:8007" basicService="serviceBasicConfig">
+	</motan:service>
+	<motan:service interface="com.igool.rpc.db.service.thrift.DictionaryService"
+				   ref="dictionaryService" export="motanDBApi:8007" basicService="serviceBasicConfig">
+	</motan:service>
+	<motan:service interface="com.igool.rpc.db.service.thrift.CarInfoRegisterService"
+				   ref="carInfoRegisterService" export="motanDBApi:8007" basicService="serviceBasicConfig">
+	</motan:service>
+	<motan:service interface="com.igool.rpc.db.service.thrift.CacheService"
+				   ref="cacheService" export="motanDBApi:8007" basicService="serviceBasicConfig">
+	</motan:service>
+	<motan:service interface="com.igool.rpc.db.service.thrift.StatisticsService"
+				   ref="statisticsService" export="motanDBApi:8007" basicService="serviceBasicConfig">
+	</motan:service>
+
+</beans>

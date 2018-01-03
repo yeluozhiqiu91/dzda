@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2010-2013 the original author or authors. Licensed under the
+	Apache License, Version 2.0 (the "License"); you may not use this file except
+	in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+	Unless required by applicable law or agreed to in writing, software distributed
+	under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+	OR CONDITIONS OF ANY KIND, either express or implied. See the License for
+	the specific language governing permissions and limitations under the License. -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.igool.rpc.db.mysql.mapper.RoleMapper">
+    <resultMap id="roleMap" type="com.igool.rpc.db.model.thrift.Roles">
+        <!--<result property="userId" column="user_id"></result>
+        <result property="account" column="account"></result>
+        <result property="name" column="name"></result>
+        <result property="departmentId" column="department_id"></result>
+        <result property="isSuperAdmin" column="isSuperadmin"></result>
+        <result property="password" column="password"></result>
+        <result property="idCard" column="id_card"></result>
+        <result property="updateDate" column="update_date"></result>
+        <result property="lastDate" column="last_date"></result>
+        <result property="status" column="status"></result>
+        <result property="createUser" column="create_user"></result>
+        <result property="createDate" column="create_date"></result>
+        <result property="delUser" column="del_user"></result>
+        <result property="delDate" column="del_date"></result>
+        <result property="orderNum" column="order_num"></result>-->
+    </resultMap>
+    <resultMap id="resourceMap" type="com.igool.rpc.db.model.thrift.Resource">
+
+    </resultMap>
+    <select id="getUserRoleList" resultMap="roleMap">
+        SELECT r.roles_id as rolesId,
+        r.code as code,
+        r.name as name,
+        r.remarks as remarks,
+        r.type as type,
+        r.create_user as createUser,
+        date_format(r.create_date,'%Y-%m-%d %H:%i:%s') as createDate,
+        r.status as status,
+        r.update_user as updateUser,
+        date_format(r.update_date,'%Y-%m-%d %H:%i:%s') as updateDate,
+        case when rel.user_id=#{uid} then 0 else 1 end isSelected
+        from t_sys_roles r
+        left join t_sys_user_roles_rel rel on r.roles_id=rel.roles_id and rel.user_id=#{uid}
+        where r.status=1
+    </select>
+    <!--from t_sys_roles r,t_sys_user_roles_rel rel,t_sys_user_info u
+    WHERE u.user_id=#{uid} and rel.user_id=u.user_id and rel.roles_id=r.roles_id-->
+    <select id="getRoleSourceList" resultMap="resourceMap" parameterType="int">
+        select m.module_id as moduleId,
+        m.name as name,
+        m.path as path,
+        m.parent_id as parentId,
+        m.code as code,
+        m.order_num as orderNum,
+        m.remarks as remarks,
+        m.status as status,
+        m.create_user as createUser,
+        date_format(m.create_date,'%Y-%m-%d %H:%i:%s') as createDate,
+        m.update_user as updateUser,
+        date_format(m.update_date,'%Y-%m-%d %H:%i:%s') as updateDate,
+        case when rel.roles_id=#{roleId} then 0 else 1 end isSelected
+        from t_sys_module m
+        left join t_sys_roles_resource_rel rel on rel.resource_id=m.module_id and rel.roles_id=#{roleId}
+    </select>
+    <!--from t_sys_module m, t_sys_roles_resource_rel rel,t_sys_roles r
+    WHERE r.roles_id=#{roleId} and r.roles_id=rel.roles_id and rel.resource_id=m.module_id-->
+    <select id="getRoleList" resultMap="roleMap">
+        SELECT r.roles_id as rolesId,
+        r.code as code,
+        r.name as name,
+        r.remarks as remarks,
+        r.type as type,
+        r.create_user as createUser,
+        date_format(r.create_date,'%Y-%m-%d %H:%i:%s') as createDate,
+        r.status as status,
+        r.update_user as updateUser,
+        date_format(r.update_date,'%Y-%m-%d %H:%i:%s') as updateDate
+        from t_sys_roles r where 1=1
+        <if test="role.name!=null and role.name!=''">
+            and r.name like concat('%',#{role.name},'%')
+        </if>
+        order by create_date desc
+    </select>
+    <select id="getRoleListCount" resultType="long">
+        select count(*)
+        from t_sys_roles r where 1=1
+        <if test="role.name!=null and role.name!=''">
+            and r.name like concat('%',#{role.name},'%')
+        </if>
+    </select>
+    <insert id="addRole" parameterType="com.igool.rpc.db.model.thrift.Roles">
+        INSERT INTO t_sys_roles(name,create_user,create_date,status)
+        VALUES (#{role.name},#{role.createUser},now(),#{role.status})
+    </insert>
+    <select id="ajaxVerifyName" resultType="com.igool.rpc.db.model.thrift.Roles">
+        SELECT r.roles_id as rolesId,
+        r.code as code,
+        r.name as name,
+        r.remarks as remarks,
+        r.type as type,
+        r.create_user as createUser,
+        date_format(r.create_date,'%Y-%m-%d %H:%i:%s') as createDate,
+        r.status as status,
+        r.update_user as updateUser,
+        date_format(r.update_date,'%Y-%m-%d %H:%i:%s') as updateDate
+        from t_sys_roles r
+        where r.name=#{name}
+    </select>
+    <update id="updateRole" parameterType="com.igool.rpc.db.model.thrift.Roles">
+        UPDATE t_sys_roles r set r.name=#{role.name},r.update_user=#{role.updateUser},r.update_date=now()
+        where r.roles_id=#{role.rolesId}
+    </update>
+    <select id="findRoleByRid" parameterType="int" resultType="com.igool.rpc.db.model.thrift.Roles">
+        SELECT r.roles_id as rolesId,
+        r.code as code,
+        r.name as name,
+        r.remarks as remarks,
+        r.type as type,
+        r.create_user as createUser,
+        date_format(r.create_date,'%Y-%m-%d %H:%i:%s') as createDate,
+        r.status as status,
+        r.update_user as updateUser,
+        date_format(r.update_date,'%Y-%m-%d %H:%i:%s') as updateDate
+        from t_sys_roles r
+        where r.roles_id=#{roleId}
+    </select>
+    <select id="getRoleIdsByUserId" resultType="java.lang.Integer">
+        select roles_id from t_sys_user_roles_rel
+        where user_id=#{userId}
+    </select>
+    <insert id="addUserRole">
+        INSERT INTO t_sys_user_roles_rel(roles_id,user_id,create_user,create_date)
+        VALUES (#{roleId},#{userId},#{createUserId},now())
+    </insert>
+    <delete id="deleteUserRole">
+        delete from t_sys_user_roles_rel where roles_id=#{roleId} and user_id=#{userId}
+    </delete>
+</mapper>

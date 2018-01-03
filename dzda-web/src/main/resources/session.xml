@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:ldap="http://www.springframework.org/schema/ldap"
+	xsi:schemaLocation="
+                        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+                        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+                        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
+                        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+                        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+                        http://www.springframework.org/schema/util  http://www.springframework.org/schema/util/spring-util-3.2.xsd
+                        http://www.springframework.org/schema/ldap     http://www.springframework.org/schema/ldap/spring-ldap.xsd">
+
+	<context:annotation-config />
+	<!-- <aop:aspectj-autoproxy proxy-target-class="true" /> -->
+	<bean
+		class="org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfiguration" >
+		<property name="defaultRedisSerializer" ref="jacksonSerializer"></property>
+		<property name="maxInactiveIntervalInSeconds" value="${session.timeout}"></property>
+		</bean>
+	<!-- redis -->
+	<!-- spring data redis config -->
+	<bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+		<property name="maxTotal" value="${redis.maxActive}" />
+		<property name="maxIdle" value="${redis.maxIdle}" />
+		<property name="maxWaitMillis" value="${redis.maxWait}" />
+		<property name="testOnBorrow" value="${redis.testOnBorrow}" />
+	</bean>
+	<!-- Jedis ConnectionFactory -->
+	<bean id="jedisConnectionFactory"
+		class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory">
+		<constructor-arg index="0" ref="jedisPoolConfig" />
+		<property name="hostName" value="${redis.host}" />
+		<property name="password" value="${redis.password}" />
+		<property name="port" value="${redis.port}" />
+		<property name="timeout" value="${redis.timeout}" />
+		<property name="database" value="${redis.database}" />
+	</bean>
+	<!-- redis template definition -->
+	<bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate"
+		p:connection-factory-ref="jedisConnectionFactory">
+		<property name="keySerializer" ref="jacksonSerializer"></property>
+		<property name="valueSerializer" ref="jacksonSerializer"></property>
+		<property name="hashKeySerializer" ref="jacksonSerializer"></property>
+		<property name="hashValueSerializer" ref="jacksonSerializer"></property>
+	</bean>
+
+	<bean id="jacksonSerializer"
+		class="framework.pisces.data4j.redis.shared.GenericJackson2JsonRedisSerializer"></bean>
+</beans>

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2010-2013 the original author or authors. Licensed under the
+	Apache License, Version 2.0 (the "License"); you may not use this file except
+	in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+	Unless required by applicable law or agreed to in writing, software distributed
+	under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+	OR CONDITIONS OF ANY KIND, either express or implied. See the License for
+	the specific language governing permissions and limitations under the License. -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.igool.rpc.db.mysql.mapper.StatisticsMapper">
+
+    <resultMap id="statisticsMap" type="com.igool.rpc.db.model.thrift.Statistics"></resultMap>
+     <resultMap id="jjtjMap" type="com.igool.rpc.db.model.thrift.Jjtj"></resultMap>
+     <resultMap id="statisticsFilterMap" type="com.igool.rpc.db.model.thrift.StatisticsFilter">
+     	<id column="jjlx" property="jjlx"  jdbcType="INTEGER"/>
+     	<result column="business_id" property="businessId" jdbcType="INTEGER"/>
+     </resultMap>
+    
+    
+    <sql id="Base_Column_List" >
+        jjlx, lssl, dasl, date_format(kssj,"%Y-%m-%d %H:%i:%s") as kssj, date_format(tjsj,"%Y-%m-%d %H:%i:%s") as tjsj, type
+    </sql>
+    
+    <select id="getStatistics" resultMap="statisticsMap">
+    
+        select 
+		<include refid="Base_Column_List" />
+		from t_da_statistics where 1=1
+        
+        <if test=" jjlx != null and jjlx != ''">
+          and jjlx=#{jjlx}
+        </if>
+        
+        <if test="kssj != null and kssj != '' ">
+         <![CDATA[ and kssj  =  #{kssj} ]]>
+    	</if>
+    	
+    	<if test="tjsj != null and tjsj != '' ">
+         <![CDATA[ and tjsj  =  #{tjsj} ]]>
+    	</if>
+    	
+    	<if test=" type != null and type != ''">
+          and type=#{type}
+        </if>
+        
+    </select>
+    
+    <insert id="addStatistics" parameterType="com.igool.rpc.db.model.thrift.Statistics">
+        insert into t_da_statistics
+          (
+          	   jjlx, 
+          	   lssl, 
+          	   dasl, 
+          	   kssj, 
+          	   tjsj,
+          	   type
+          )
+        values
+          (
+	           #{jjlx,jdbcType=INTEGER}, 
+	           #{lssl,jdbcType=INTEGER}, 
+	           #{dasl,jdbcType=INTEGER},
+	           #{kssj,jdbcType=TIMESTAMP}, 
+	           #{tjsj,jdbcType=TIMESTAMP},
+	           #{type,jdbcType=INTEGER}
+          )
+    </insert>
+    
+    <select id="getJjtj" resultMap="jjtjMap" parameterType="java.util.List">
+    	select count(b.business_id) as lsCount, count(distinct(b.file_code)) as daCount from t_da_business_info b
+    	<where>
+    		b.business_id in <foreach collection="list" item="item" index="index" 
+			open="(" separator="," close=")">#{item.businessId}</foreach>
+		</where>
+    </select>
+    
+    <select id="getDeliveryStatisticsFilter" resultMap="statisticsFilterMap" parameterType="com.igool.rpc.db.model.thrift.Statistics">
+    	select d.jjlx as jjlx, rel.business_id from  
+    	t_da_delivery_info d,t_da_delivery_rel rel 
+    	where d.delivery_id = rel.delivery_id 
+    	<if test="kssj != null and kssj != ''">
+            and rel.create_date &gt;= #{kssj}
+        </if>
+        <if test="tjsj != null and tjsj != ''">
+            and rel.create_date &lt; #{tjsj}
+        </if>
+    </select>
+    
+    <select id="getSignStatisticsFilter" resultMap="statisticsFilterMap" parameterType="com.igool.rpc.db.model.thrift.Statistics">
+    	select d.jjlx as jjlx, rel.business_id from  
+    	t_da_signing d,t_da_signing_rel rel 
+    	where d.signing_id = rel.signing_id 
+    	<if test="kssj != null and kssj != ''">
+            and rel.create_date &gt;= #{kssj}
+        </if>
+        <if test="tjsj != null and tjsj != ''">
+            and rel.create_date &lt; #{tjsj}
+        </if>
+    </select>
+    
+</mapper>
